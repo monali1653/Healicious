@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-const Signup = () => {
+const Login = () => {
+  // State for password visibility
   const [showPassword, setShowPassword] = useState(false);
 
+  // Handle toggle
   const handleToggle = () => {
     setShowPassword(!showPassword);
   };
@@ -18,26 +20,14 @@ const Signup = () => {
 
           {/* Welcome Text */}
           <div>
-            <h2 className="text-2xl font-semibold text-gray-800">Create Account</h2>
+            <h2 className="text-2xl font-semibold text-gray-800">Welcome Back</h2>
             <p className="text-gray-500 text-sm">
-              Register to get started with your healthy journey.
+              Sign in with your email address and password.
             </p>
           </div>
 
           {/* Form */}
           <form className="space-y-5">
-            {/* Full Name */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name
-              </label>
-              <input
-                type="text"
-                placeholder="John Doe"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -46,18 +36,6 @@ const Signup = () => {
               <input
                 type="email"
                 placeholder="johndoe123@xyz.com"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-
-            {/* Phone Number */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                placeholder="+91 98765 43210"
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
@@ -74,7 +52,7 @@ const Signup = () => {
               />
             </div>
 
-            {/* Show Password */}
+            {/* Remember Me + Forgot Password */}
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center cursor-pointer">
                 <input
@@ -84,21 +62,24 @@ const Signup = () => {
                 />
                 Show Password
               </label>
+              <a href="#" className="text-green-600 hover:underline">
+                Forgot Password?
+              </a>
             </div>
 
-            {/* Register Button */}
+            {/* Sign In Button */}
             <button
               type="submit"
               className="w-full bg-green-600 text-white py-2 rounded-md font-semibold hover:bg-green-700 transition"
             >
-              Register
+              Sign In
             </button>
 
-            {/* Already Have Account */}
+            {/* Sign Up Link */}
             <p className="text-sm text-center text-gray-600">
-              Already have an account?{" "}
-              <Link to="/login" className="text-green-600 font-medium hover:underline">
-                Sign In
+              Don’t have an account?{" "}
+              <Link to="/signup" className="text-green-600 font-medium hover:underline">
+                Sign Up
               </Link>
             </p>
           </form>
@@ -117,4 +98,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default Login;

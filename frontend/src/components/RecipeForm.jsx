@@ -1,166 +1,299 @@
 import React, { useState } from "react";
 
 const RecipeForm = () => {
-  const [ingredients, setIngredients] = useState([""]);
-  const [nutrition, setNutrition] = useState({
-    vitamins: 0,
-    carbs: 0,
-    proteins: 0,
-    minerals: 0,
+  const [step, setStep] = useState(1);
+
+  const [recipe, setRecipe] = useState({
+    name: "",
+    disease: "",
+    cookTime: "",
+    ingredients: [{ name: "", quantity: "" }],
+    steps: [""],
+    image: null,
   });
 
-  // Handle ingredient change
-  const handleIngredientChange = (index, value) => {
-    const newIngredients = [...ingredients];
-    newIngredients[index] = value;
-    setIngredients(newIngredients);
+  const diseases = [
+    "Diabetes",
+    "Heart Disease",
+    "Obesity",
+    "High Blood Pressure",
+    "Thyroid",
+  ];
+
+  const handleChange = (e) => {
+    setRecipe({ ...recipe, [e.target.name]: e.target.value });
   };
 
-  // Add new ingredient field on Enter
-  const handleKeyDown = (e, index) => {
-    if (e.key === "Enter" && ingredients[index].trim() !== "") {
-      e.preventDefault();
-      setIngredients([...ingredients, ""]);
-    }
+  const handleIngredientChange = (index, field, value) => {
+    const newIngredients = [...recipe.ingredients];
+    newIngredients[index][field] = value;
+    setRecipe({ ...recipe, ingredients: newIngredients });
   };
 
-  // Handle nutrition change
-  const handleNutritionChange = (name, value) => {
-    setNutrition({ ...nutrition, [name]: value });
+  const addIngredient = () => {
+    setRecipe({
+      ...recipe,
+      ingredients: [...recipe.ingredients, { name: "", quantity: "" }],
+    });
   };
+
+  const removeIngredient = (index) => {
+    const newIngredients = recipe.ingredients.filter((_, i) => i !== index);
+    setRecipe({ ...recipe, ingredients: newIngredients });
+  };
+
+  const handleStepChange = (index, value) => {
+    const newSteps = [...recipe.steps];
+    newSteps[index] = value;
+    setRecipe({ ...recipe, steps: newSteps });
+  };
+
+  const addStep = () => {
+    setRecipe({ ...recipe, steps: [...recipe.steps, ""] });
+  };
+
+  const removeStep = (index) => {
+    const newSteps = recipe.steps.filter((_, i) => i !== index);
+    setRecipe({ ...recipe, steps: newSteps });
+  };
+
+  const handleImageUpload = (e) => {
+    setRecipe({ ...recipe, image: e.target.files[0] });
+  };
+
+  const handleSubmit = async () => {
+    const formData = new FormData();
+    formData.append("name", recipe.name);
+    formData.append("disease", recipe.disease);
+    formData.append("cookTime", recipe.cookTime);
+    formData.append("ingredients", JSON.stringify(recipe.ingredients));
+    formData.append("steps", JSON.stringify(recipe.steps));
+    if (recipe.image) formData.append("image", recipe.image);
+
+    // Example backend call:
+    // await fetch("/api/recipes", { method: "POST", body: formData });
+
+    alert("Recipe saved successfully!");
+  };
+
+  const nextStep = () => setStep((prev) => Math.min(prev + 1, 4));
+  const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
   return (
-    <div className="min-h-screen bg-purple-100/50 flex items-center justify-center p-6">
-      <div className="relative bg-white rounded-[3rem] shadow-lg w-full max-w-7xl py-8 px-24 backdrop-blur-md border-4 border-purple-400 ">
-
-        {/* Clipart placeholders */}
-        <div className="absolute top-4 right-4 w-16 h-16 rounded-full flex items-center justify-center">
-          <img src="/images/cap.png" />
-        </div>
-        <div className="absolute bottom-4 left-4 w-16 h-16 rounded-full flex items-center justify-center">
-          <img src="/images/veggie.png" />
-        </div>
-
-        <h2 className="text-3xl md:text-4xl font-bold text-center mb-10 text-purple-900">
-          Add Your Own Recipe
+    <div className="flex justify-center items-center min-h-screen bg-yellow-100 p-4">
+      <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-6">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
+          Add Recipe
         </h2>
 
-        <div className="flex flex-col md:flex-row gap-10">
-          {/* Left Side - Form */}
-          <div className="flex-1">
-            <form className="space-y-8">
-              {/* Recipe Name */}
-              <div>
-                <label className="block text-purple-900 font-semibold mb-1">
-                  Recipe Name
-                </label>
+        {/* Progress Dots */}
+        <div className="flex justify-center mb-6 space-x-2">
+          {[1, 2, 3, 4].map((num) => (
+            <div
+              key={num}
+              className={`w-3 h-3 rounded-full ${
+                step >= num ? "bg-yellow-500" : "bg-gray-300"
+              }`}
+            ></div>
+          ))}
+        </div>
+
+        {/* Step 1 - Basic Info */}
+        {step === 1 && (
+          <div>
+            <label className="block mb-2 text-gray-700 font-medium">
+              Recipe Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              value={recipe.name}
+              onChange={handleChange}
+              className="w-full border rounded-lg p-2 mb-4 focus:ring-2 focus:ring-yellow-400"
+              placeholder="Enter recipe name"
+            />
+
+            <label className="block mb-2 text-gray-700 font-medium">
+              Disease Category
+            </label>
+            <select
+              name="disease"
+              value={recipe.disease}
+              onChange={handleChange}
+              className="w-full border rounded-lg p-2 mb-4 focus:ring-2 focus:ring-yellow-400"
+            >
+              <option value="">Select category</option>
+              {diseases.map((d, i) => (
+                <option key={i} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+
+            <label className="block mb-2 text-gray-700 font-medium">
+              Cook Time (in mins)
+            </label>
+            <input
+              type="number"
+              name="cookTime"
+              value={recipe.cookTime}
+              onChange={handleChange}
+              className="w-full border rounded-lg p-2 mb-6 focus:ring-2 focus:ring-yellow-400"
+              placeholder="Enter time in minutes"
+            />
+
+            <button
+              onClick={nextStep}
+              className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg"
+            >
+              Next
+            </button>
+          </div>
+        )}
+
+        {/* Step 2 - Ingredients */}
+        {step === 2 && (
+          <div>
+            <label className="block mb-4 text-gray-700 font-medium">
+              Ingredients
+            </label>
+            {recipe.ingredients.map((ing, index) => (
+              <div key={index} className="flex items-center gap-2 mb-2">
                 <input
                   type="text"
-                  className="w-full border-b-2 border-purple-400 focus:outline-none focus:border-purple-600 bg-transparent p-2"
-                  placeholder="Enter recipe name"
+                  value={ing.name}
+                  onChange={(e) =>
+                    handleIngredientChange(index, "name", e.target.value)
+                  }
+                  className="flex-1 border rounded-lg p-2 focus:ring-2 focus:ring-yellow-400"
+                  placeholder="Name"
                 />
-              </div>
-
-              {/* Disease Dropdown */}
-              <div>
-                <label className="block text-purple-900 font-semibold mb-1">
-                  Disease
-                </label>
-                <select className="w-full border-b-2 border-purple-400 focus:outline-none focus:border-purple-600 bg-transparent p-2">
-                  <option value="">Select Disease</option>
-                  <option value="bp">BP</option>
-                  <option value="anaemia">Anaemia</option>
-                  <option value="diabetes">Diabetes</option>
-                  <option value="obesity">Obesity</option>
-                  <option value="heart">Heart</option>
-                  <option value="kidney">Kidney Disease</option>
-                </select>
-              </div>
-
-              {/* Ingredients */}
-              <div>
-                <label className="block text-purple-900 font-semibold mb-1">
-                  Ingredients
-                </label>
-                {ingredients.map((ingredient, index) => (
-                  <input
-                    key={index}
-                    type="text"
-                    value={ingredient}
-                    onChange={(e) => handleIngredientChange(index, e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(e, index)}
-                    className="w-full border-b-2 border-purple-400 focus:outline-none focus:border-purple-600 bg-transparent p-2 mb-2"
-                    placeholder={`Ingredient ${index + 1}`}
-                  />
-                ))}
-                <p className="text-sm text-gray-600">
-                  Press Enter after typing to add more ingredients
-                </p>
-              </div>
-
-              {/* Method */}
-              <div>
-                <label className="block text-purple-900 font-semibold mb-1">
-                  Method
-                </label>
-                <textarea
-                  className="w-full border-b-2 border-purple-400 focus:outline-none focus:border-purple-600 bg-transparent p-2"
-                  rows="3"
-                  placeholder="Enter preparation method"
-                />
-              </div>
-
-              {/* Nutritional Content with Sliders */}
-              {/* <div>
-                <label className="block text-purple-900 font-semibold mb-4">
-                  Nutritional Content (%)
-                </label>
-                {Object.keys(nutrition).map((key) => (
-                  <div key={key} className="mb-6">
-                    <div className="flex justify-between text-sm font-medium text-purple-900">
-                      <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
-                      <span>{nutrition[key]}%</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="100"
-                      value={nutrition[key]}
-                      onChange={(e) =>
-                        handleNutritionChange(key, parseInt(e.target.value))
-                      }
-                      className="w-full accent-purple-600"
-                    />
-                  </div>
-                ))}
-              </div> */}
-
-              {/* Image Upload */}
-              <div>
-                <label className="block text-purple-900 font-semibold mb-1">
-                  Upload Dish Image
-                </label>
                 <input
-                  type="file"
-                  className="w-full border-b-2 border-purple-400 focus:outline-none focus:border-purple-600 bg-transparent p-2"
+                  type="text"
+                  value={ing.quantity}
+                  onChange={(e) =>
+                    handleIngredientChange(index, "quantity", e.target.value)
+                  }
+                  className="w-24 border rounded-lg p-2 focus:ring-2 focus:ring-yellow-400"
+                  placeholder="Qty"
+                />
+                <button
+                  onClick={() => removeIngredient(index)}
+                  className="text-red-500 font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            <button
+              onClick={addIngredient}
+              className="text-yellow-600 font-medium mb-4"
+            >
+              + Add Ingredient
+            </button>
+
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={prevStep}
+                className="px-4 py-2 bg-gray-200 rounded-lg"
+              >
+                Back
+              </button>
+              <button
+                onClick={nextStep}
+                className="px-4 py-2 bg-yellow-500 text-white rounded-lg"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3 - Steps */}
+        {step === 3 && (
+          <div>
+            <label className="block mb-4 text-gray-700 font-medium">
+              Steps
+            </label>
+            {recipe.steps.map((st, index) => (
+              <div key={index} className="flex items-start gap-2 mb-2">
+                <textarea
+                  value={st}
+                  onChange={(e) => handleStepChange(index, e.target.value)}
+                  className="flex-1 border rounded-lg p-2 focus:ring-2 focus:ring-yellow-400"
+                  placeholder={`Step ${index + 1}`}
+                />
+                <button
+                  onClick={() => removeStep(index)}
+                  className="text-red-500 font-bold mt-2"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            <button
+              onClick={addStep}
+              className="text-yellow-600 font-medium mb-4"
+            >
+              + Add Step
+            </button>
+
+            <div className="flex justify-between mt-4">
+              <button
+                onClick={prevStep}
+                className="px-4 py-2 bg-gray-200 rounded-lg"
+              >
+                Back
+              </button>
+              <button
+                onClick={nextStep}
+                className="px-4 py-2 bg-yellow-500 text-white rounded-lg"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 4 - Image Upload */}
+        {step === 4 && (
+          <div>
+            <label className="block mb-4 text-gray-700 font-medium">
+              Upload Recipe Image
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="w-full border rounded-lg p-2 mb-4"
+            />
+
+            {recipe.image && (
+              <div className="mb-4">
+                <img
+                  src={URL.createObjectURL(recipe.image)}
+                  alt="preview"
+                  className="w-full h-40 object-cover rounded-lg border"
                 />
               </div>
+            )}
 
-              {/* Submit */}
+            <div className="flex justify-between">
               <button
-                type="submit"
-                className="w-full bg-purple-600 text-white py-3 rounded-xl font-semibold hover:bg-purple-700 transition"
+                onClick={prevStep}
+                className="px-4 py-2 bg-gray-200 rounded-lg"
               >
-                Submit Recipe
+                Back
               </button>
-            </form>
+              <button
+                onClick={handleSubmit}
+                className="px-4 py-2 bg-yellow-500 text-white rounded-lg"
+              >
+                Save
+              </button>
+            </div>
           </div>
-
-          {/* Right Side - Image */}
-          <div className="flex-1 flex items-center justify-center">
-            <img src="/images/dish.png" alt="Dish Preview" className="rounded-xl object-cover" />
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

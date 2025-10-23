@@ -1,51 +1,87 @@
-// RecipeCards.jsx
 import React from "react";
-import { FaArrowRight } from "react-icons/fa";
-
-const recipes = [
-  {
-    name: "Sugar-Free Pancakes",
-    image: "/images/sugar.webp",
-  },
-  {
-    name: "Grilled Chicken Salad",
-    image: "/images/grilled.avif",
-  },
-  {
-    name: "Vegetable Stir Fry",
-    image: "/images/Vegetable.jpg",
-  },
-  // Add more recipes here
-];
+import { useNavigate } from "react-router-dom";
+import { Clock, Eye } from "lucide-react";
 
 const RecipeCards = () => {
-  const diseaseName = "Diabetes-Friendly Recipes";
+  const navigate = useNavigate();
+
+  const recipes = [
+    {
+      id: 1,
+      name: "Savoy Cabbage",
+      time: "7 min",
+      img: "/images/sav.jpg",
+    },
+    {
+      id: 2,
+      name: "Garden Onion",
+      time: "10 min",
+      img: "/images/gard.jpg",
+    },
+    {
+      id: 3,
+      name: "Cashew Nut",
+      time: "8 min",
+      img: "/images/cash.jpg",
+    },
+    {
+      id: 4,
+      name: "Wild Celery",
+      time: "6 min",
+      img: "/images/wild.webp",
+    },
+  ];
+
+  const handleView = (id) => {
+    navigate(`/recipe/${id}`);
+  };
 
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      {/* Disease Heading */}
-      <h1 className="text-3xl md:text-4xl font-bold mb-6 text-center">{diseaseName}</h1>
+    <div className="px-6 py-24 bg-yellow-50 min-h-screen">
+      <h2 className="text-2xl font-semibold text-gray-800 mb-10 text-center">
+        Diabetes Recipes
+      </h2>
 
-      {/* Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {recipes.map((recipe, index) => (
+      <div className="flex flex-wrap justify-center gap-10">
+        {recipes.map((recipe) => (
           <div
-            key={index}
-            className="relative h-64 rounded-lg overflow-hidden shadow-lg group cursor-pointer"
+            key={recipe.id}
+            className="relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 w-72 pt-16 pb-8 px-4 text-center"
           >
-            {/* Background Image */}
-            <img
-              src={recipe.image}
-              alt={recipe.name}
-              className="w-full h-full object-cover transform group-hover:scale-105 transition duration-300"
-            />
+            {/* Floating Image */}
+            <div className="absolute -top-14 left-1/2 transform -translate-x-1/2">
+              <img
+                src={recipe.img}
+                alt={recipe.name}
+                className="w-28 h-28 rounded-full object-cover border-4 border-yellow-300 shadow-lg"
+              />
+            </div>
 
-            {/* Bottom Overlay */}
-            <div className="absolute bottom-0 w-full bg-black bg-opacity-50 text-white flex items-center justify-between px-4 py-2">
-              <span className="font-semibold">{recipe.name}</span>
-              <div className="bg-green-500 w-8 h-8 flex items-center justify-center rounded-full">
-                <FaArrowRight className="text-white" />
+            {/* Recipe Name */}
+            <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-6">
+              {recipe.name}
+            </h3>
+
+            {/* Time + View Now Section */}
+            <div className="flex flex-col items-center gap-4">
+              {/* Time Section */}
+              <div className="flex flex-col items-center text-gray-700">
+                <Clock size={22} className="text-yellow-500 mb-1" />
+                <p className="text-sm">total time</p>
+                <p className="font-semibold text-gray-900">{recipe.time}</p>
               </div>
+
+              {/* Divider */}
+              <div className="w-10 h-px bg-gray-300"></div>
+
+              {/* View Now Button */}
+              <button
+                onClick={() => handleView(recipe.id)}
+                className="flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition-all duration-300"
+              >
+                <Eye size={18} />
+                View Now
+              </button>
             </div>
           </div>
         ))}
