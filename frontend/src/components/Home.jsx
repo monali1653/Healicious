@@ -1,0 +1,212 @@
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  FaStar,
+  FaUtensils,
+  FaAppleAlt,
+  FaHeartbeat,
+  FaTint,
+  FaWeight,
+  FaLemon,
+  FaLeaf,
+  FaChevronRight,
+} from "react-icons/fa";
+
+const Home = () => {
+  const navigate = useNavigate();
+
+  const diseases = [
+    { name: "All Types", icon: <FaAppleAlt />, path: "/disease/all", active: true },
+    { name: "Diabetes", icon: <FaHeartbeat />, path: "/disease/diabetes" },
+    { name: "Anaemia", icon: <FaTint />, path: "/disease/anaemia" },
+    { name: "Thyroid", icon: <FaLeaf />, path: "/disease/thyroid" },
+    { name: "Obesity", icon: <FaWeight />, path: "/disease/obesity" },
+    { name: "PCOS", icon: <FaLemon />, path: "/disease/pcos" },
+    { name: "Heart Health", icon: <FaHeartbeat />, path: "/disease/heart-health" },
+  ];
+
+  return (
+    <div className="flex flex-col">
+      {/* ================= EXISTING HOME SECTION ================= */}
+      <div className="flex flex-col md:flex-row items-center justify-between min-h-screen bg-white px-6 md:px-0 py-10 md:py-0 overflow-hidden">
+        {/* Left Section */}
+        <div className="w-full md:w-1/2 flex flex-col justify-center space-y-6 text-center md:text-left z-10 px-6 md:px-16">
+          <p className="text-yellow-500 font-medium text-sm md:text-base">
+            Keep yourself healthy!
+          </p>
+
+          <h1 className="text-3xl md:text-5xl font-bold leading-tight text-gray-900">
+            Enjoy Your{" "}
+            <span className="text-yellow-500">Special</span> Delicious Healthy Meal{" "}
+            <span className="inline-block animate-bounce">🔥</span>
+          </h1>
+
+          <p className="text-gray-600 text-sm md:text-base max-w-md mx-auto md:mx-0">
+            We make it easy for you to keep your health perfect without compromising with taste.
+          </p>
+
+          {/* Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center md:justify-start">
+            <button className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-6 py-3 rounded-full shadow-md transition duration-300">
+              Explore Now
+            </button>
+            <button
+              onClick={() => navigate("/login")}
+              className="border border-yellow-500 text-yellow-500 hover:bg-yellow-50 font-semibold px-6 py-3 rounded-full shadow-md transition duration-300"
+            >
+              Login
+            </button>
+          </div>
+
+          {/* Stats Section */}
+          <div className="flex flex-col sm:flex-row gap-6 mt-10 justify-center md:justify-start">
+            <div className="flex flex-col items-center bg-gray-50 rounded-xl p-4 shadow-sm w-32">
+              <FaStar className="text-yellow-500 text-2xl mb-1" />
+              <p className="font-semibold text-gray-800">(4.8)</p>
+              <p className="text-xs text-gray-500">15K Reviews</p>
+            </div>
+
+            <div className="flex flex-col items-center bg-gray-50 rounded-xl p-4 shadow-sm w-32">
+              <FaUtensils className="text-yellow-500 text-2xl mb-1" />
+              <p className="font-semibold text-gray-800">400+</p>
+              <p className="text-xs text-gray-500">Comments</p>
+            </div>
+
+            <div className="flex flex-col items-center bg-gray-50 rounded-xl p-4 shadow-sm w-32">
+              <FaAppleAlt className="text-yellow-500 text-2xl mb-1" />
+              <p className="font-semibold text-gray-800">700+</p>
+              <p className="text-xs text-gray-500">Food Items</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Section with angled cut */}
+        <div className="relative w-full md:w-1/2 h-80 md:h-screen mt-10 md:mt-0 overflow-hidden">
+          <div
+            className="absolute inset-0 bg-cover bg-center"
+            style={{
+              backgroundImage: "url('/images/food-banner.jpg')", // replace with your image
+              clipPath: "polygon(12% 0%, 100% 0%, 100% 100%, 0% 100%)",
+            }}
+          ></div>
+          <div className="absolute inset-0 bg-white opacity-5"></div>
+        </div>
+      </div>
+
+      {/* ================= NEW WELLBEING SECTION ================= */}
+      <section className="bg-white py-16 px-6 md:px-20 text-center">
+        <h2 className="text-3xl md:text-4xl font-bold text-yellow-500 mb-4">
+          Your Wellbeing is Our Priority
+        </h2>
+        <p className="text-gray-600 mb-12 max-w-2xl mx-auto">
+          We believe food can be healing. Our disease-specific healthy meals are designed to support your body’s needs while keeping the comfort of homemade taste in every bite.
+        </p>
+
+        <div className="grid md:grid-cols-3 gap-12 items-center">
+          {/* Left Column */}
+          <div className="flex flex-col gap-10">
+            {/* Save Time */}
+            <div className="flex flex-col items-center text-center">
+              <img
+                src="/images/save-time.jpg"
+                alt="Save Time"
+                className="w-20 h-20 object-cover rounded-full mb-3 shadow-md"
+              />
+              <h3 className="text-lg font-semibold text-yellow-600 mb-2">Save Time</h3>
+              <p className="text-gray-600 text-sm md:text-base max-w-xs mx-auto">
+               No need to spend hours planning or cooking. Get freshly prepared, home-style meals made with the right ingredients for your health goals — ready to eat when you are.
+              </p>
+            </div>
+
+            {/* Save Money */}
+            <div className="flex flex-col items-center text-center">
+              <img
+                src="/images/save-money.jpg"
+                alt="Save Money"
+                className="w-20 h-20 object-cover rounded-full mb-3 shadow-md"
+              />
+              <h3 className="text-lg font-semibold text-yellow-600 mb-2">Save Money</h3>
+              <p className="text-gray-600 text-sm md:text-base max-w-xs mx-auto">
+                Healthy eating doesn’t have to be costly. Our balanced, nutrition-focused meals give you wholesome food at an affordable price, so you can stay consistent without overspending.
+              </p>
+            </div>
+          </div>
+
+          {/* Center Image */}
+          <div className="flex justify-center">
+            <img
+              src="/images/center.jpg"
+              alt="Meal Kit"
+              className="w-full max-w-sm rounded-2xl shadow-md object-cover"
+            />
+          </div>
+
+          {/* Right Column */}
+          <div className="flex flex-col gap-10">
+            {/* Restaurant Quality */}
+            <div className="flex flex-col items-center text-center">
+              <img
+                src="/images/food-quality.jpg"
+                alt="Restaurant Quality"
+                className="w-20 h-20 object-cover rounded-full mb-3 shadow-md"
+              />
+              <h3 className="text-lg font-semibold text-yellow-600 mb-2">Food Quality</h3>
+              <p className="text-gray-600 text-sm md:text-base max-w-xs mx-auto">
+                Enjoy food that’s both nourishing and satisfying — perfectly cooked, full of flavor, and made just like home. Every meal supports your health without compromising on taste.
+              </p>
+            </div>
+
+            {/* Reduce Waste */}
+            <div className="flex flex-col items-center text-center">
+              <img
+                src="/images/reduce-waste.jpg"
+                alt="Reduce Waste"
+                className="w-20 h-20 object-cover rounded-full mb-3 shadow-md"
+              />
+              <h3 className="text-lg font-semibold text-yellow-600 mb-2">Reduce Waste</h3>
+              <p className="text-gray-600 text-sm md:text-base max-w-xs mx-auto">
+                Every meal is portioned mindfully to match your diet plan. You get exactly what your body needs — nothing extra, nothing wasted.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ================= NEW DISEASE SPECIFIC SECTION ================= */}
+      <section className="bg-white py-16 px-6 md:px-20 border-t border-gray-100">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-10">
+          Find your <span className="text-yellow-500">disease specific</span> meals
+        </h2>
+
+        <div className="flex flex-wrap justify-center gap-4 md:gap-6">
+          {diseases.map((item, index) => (
+            <button
+              key={index}
+              onClick={() => navigate(item.path)}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full shadow-sm border transition-all duration-300
+                ${
+                  item.active
+                    ? "bg-black text-white border-black"
+                    : "bg-gray-50 hover:bg-yellow-50 text-gray-700 border-gray-200"
+                }`}
+            >
+              <span className="text-yellow-500 text-lg">{item.icon}</span>
+              <span className="font-medium text-sm md:text-base">{item.name}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="flex justify-end mt-8">
+          <button
+            onClick={() => navigate("/disease")}
+            className="flex items-center text-yellow-600 hover:text-yellow-700 font-medium transition duration-200"
+          >
+            See more <FaChevronRight className="ml-1" />
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+export default Home;
