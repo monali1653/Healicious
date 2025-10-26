@@ -1,17 +1,65 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Login = () => {
-  // State for password visibility
-  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
-  // Handle toggle
+  // Form state
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+
+  // Handle input change
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // Toggle password visibility
   const handleToggle = () => {
     setShowPassword(!showPassword);
   };
 
+  // Handle form submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess(false);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/v1/users/login",
+        formData
+      );
+      console.log(response.data);
+
+      // If backend returns token or user info, you can save it
+      localStorage.setItem("token", response.data.token); // optional
+
+      setSuccess(true);
+
+      // Navigate to home after 2 seconds
+      setTimeout(() => {
+        setSuccess(false);
+        navigate("/");
+      }, 2000);
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="min-h-screen flex flex-col md:flex-row relative">
       {/* Left: Form Section */}
       <div className="w-full md:w-[40%] flex items-center justify-center bg-white p-8 md:p-16">
         <div className="max-w-md w-full space-y-6">
@@ -27,7 +75,7 @@ const Login = () => {
           </div>
 
           {/* Form */}
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -35,8 +83,12 @@ const Login = () => {
               </label>
               <input
                 type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="johndoe123@xyz.com"
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                required
               />
             </div>
 
@@ -47,12 +99,16 @@ const Login = () => {
               </label>
               <input
                 type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="••••••••"
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                required
               />
             </div>
 
-            {/* Remember Me + Forgot Password */}
+            {/* Show Password */}
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center cursor-pointer">
                 <input
@@ -62,15 +118,20 @@ const Login = () => {
                 />
                 Show Password
               </label>
-              
             </div>
+
+            {/* Error Message */}
+            {error && <p className="text-red-500 text-sm">{error}</p>}
 
             {/* Sign In Button */}
             <button
               type="submit"
-              className="w-full bg-green-600 text-white py-2 rounded-md font-semibold hover:bg-green-700 transition"
+              className={`w-full bg-green-600 text-white py-2 rounded-md font-semibold hover:bg-green-700 transition ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={loading}
             >
-              Sign In
+              {loading ? "Signing in..." : "Sign In"}
             </button>
 
             {/* Sign Up Link */}
@@ -92,6 +153,13 @@ const Login = () => {
           className="w-full h-full object-cover"
         />
       </div>
+
+      {/* Success Popup */}
+      {success && (
+        <div className="absolute top-5 right-5 bg-green-600 text-white px-4 py-2 rounded-md shadow-lg">
+          Login successful! Redirecting...
+        </div>
+      )}
     </div>
   );
 };
