@@ -23,10 +23,9 @@ function App() {
         <Route path='/' element={<Home/>} />
         <Route path='/signup' element={<SignUp/>} />
         <Route path='/login' element={<Login/>} />
-        <Route path='/meals' element={<MealsPage/>} />
         <Route path='/recipe' element={<RecipeForm/>} />
-        <Route path='/details' element={<RecipeDetails/>} />
-        <Route path='/cards' element={<RecipeCards/>} />
+         <Route path="/disease/:category" element={<RecipeCards />} />
+         <Route path="/disease/:category/:dishName" element={<RecipeDetails />} />
       </Routes>
       <Footer/>
     </Router>

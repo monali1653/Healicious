@@ -8,9 +8,7 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Home", path: "/" },
-    { name: "Menu", path: "/menu" },
-    { name: "Add Yours", path: "/Add Yours" },
-    { name: "Reviews", path: "/reviews" },
+    { name: "Add Yours", path: "/recipe" },
   ];
 
   return (
@@ -19,7 +17,7 @@ const Navbar = () => {
         {/* Logo Section */}
         <div className="flex items-center space-x-2">
           <img
-            src="/images/logo.jpg" // replace with your logo path
+            src="/images/logo.jpg" 
             alt="Logo"
             className="w-8 h-8 object-contain"
           />

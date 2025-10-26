@@ -62,9 +62,7 @@ const Login = () => {
                 />
                 Show Password
               </label>
-              <a href="#" className="text-green-600 hover:underline">
-                Forgot Password?
-              </a>
+              
             </div>
 
             {/* Sign In Button */}

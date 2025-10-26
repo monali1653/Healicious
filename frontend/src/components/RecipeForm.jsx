@@ -14,10 +14,35 @@ const RecipeForm = () => {
 
   const diseases = [
     "Diabetes",
-    "Heart Disease",
-    "Obesity",
-    "High Blood Pressure",
+    "Anaemia",
     "Thyroid",
+    "Obesity",
+    "PCOS",
+    "Heart Health",
+    "Hypertension",
+    "Cholesterol",
+    "Liver Health",
+    "Kidney Health",
+    "Digestive Health",
+    "Joint Pain",
+    "Migraine Relief",
+    "Lactose Intolerance",
+    "Gluten Intolerance",
+    "Arthritis",
+    "Depression & Anxiety",
+    "Asthma",
+    "Menopause Support",
+    "Pregnancy Nutrition",
+    "Postpartum Recovery",
+    "Immunity Boost",
+    "Fatty Liver",
+    "Skin Health",
+    "Bone Strength",
+    "Eye Health",
+    "Sleep Improvement",
+    "Allergy-Friendly",
+    "Cancer Recovery",
+    "Detox & Cleanse"
   ];
 
   const handleChange = (e) => {
