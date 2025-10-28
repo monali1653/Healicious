@@ -88,12 +88,7 @@ const extraDiseases = [
             >
               Explore Now
             </button>
-            <button
-              onClick={() => navigate("/login")}
-              className="border border-yellow-500 text-yellow-500 hover:bg-yellow-50 font-semibold px-6 py-3 rounded-full shadow-md transition duration-300"
-            >
-              Login
-            </button>
+           
           </div>
 
           {/* Stats Section */}

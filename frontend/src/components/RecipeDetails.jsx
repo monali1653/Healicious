@@ -1,76 +1,147 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { FaFire, FaClock, FaHeart, FaRobot, FaPlay } from 'react-icons/fa';
-import axios from 'axios';
+import React, { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import { FaClock, FaHeart, FaCommentDots } from "react-icons/fa";
+import Avatar from "@mui/material/Avatar";
+import axios from "axios";
+import Loader from "./Loader.jsx";
 
 const RecipeDetails = () => {
   const { category, dishName } = useParams();
   const [recipe, setRecipe] = useState(null);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [comments, setComments] = useState([]);
+  const [newComment, setNewComment] = useState("");
+  const commentsRef = useRef(null);
 
+  // ✅ Fetch recipe details
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
+        setLoading(true);
         const res = await axios.get(
-          `http://localhost:5000/api/recipes/${category}/${dishName}`
+          `http://localhost:8000/api/v1/recipes/get-recipes/${category}`,
+          { withCredentials: true }
         );
-        setRecipe(res.data);
+
+        const recipes = res.data.data || res.data;
+        const selected = recipes.find(
+          (r) =>
+            r.recipeName.toLowerCase() ===
+            decodeURIComponent(dishName).toLowerCase()
+        );
+
+        setRecipe(selected ? { ...selected, _id: selected._id || selected.id } : null);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching recipe details:", err);
+      } finally {
+        setLoading(false);
       }
     };
-    fetchRecipe();
+
+    if (category && dishName) fetchRecipe();
   }, [category, dishName]);
 
-  if (!recipe) return <p className="text-center mt-10">Loading...</p>;
+  // ✅ Toggle Wishlist
+  const handleFavoriteClick = async () => {
+    try {
+      const res = await axios.post(
+        "http://localhost:8000/api/v1/users/toggle-wishlist",
+        { recipeId: recipe._id },
+        { withCredentials: true }
+      );
 
-  const handleFavoriteClick = () => setIsFavorite(!isFavorite);
+      const message = res.data.message;
+      if (message.includes("Added")) setIsFavorite(true);
+      else if (message.includes("Removed")) setIsFavorite(false);
+    } catch (err) {
+      console.error("Error toggling wishlist:", err);
+      alert("Failed to toggle wishlist");
+    }
+  };
+
+  // ✅ Fetch comments
+  useEffect(() => {
+    const fetchComments = async () => {
+      if (!recipe?._id) return;
+      try {
+        const res = await axios.get(
+          `http://localhost:8000/api/v1/comment/get-comment/${recipe._id}`,
+          { withCredentials: true }
+        );
+        setComments(res.data.data?.comments || []);
+      } catch (err) {
+        console.error("Error fetching comments:", err);
+      }
+    };
+    fetchComments();
+  }, [recipe]);
+
+  const handlePostComment = async () => {
+    if (!newComment.trim()) return alert("Please enter a comment!");
+    try {
+      const res = await axios.post(
+        "http://localhost:8000/api/v1/comment/post-comment",
+        { recipeId: recipe._id, content: newComment },
+        { withCredentials: true }
+      );
+      if (res.status === 201) {
+        setComments((prev) => [res.data.data, ...prev]);
+        setNewComment("");
+      }
+    } catch (err) {
+      console.error("Error posting comment:", err);
+    }
+  };
+
+  if (loading) return <p className="text-center mt-10"><Loader /></p>;
+  if (!recipe) return <p className="text-center mt-10">Recipe not found.</p>;
 
   return (
     <div className="pt-24 px-6 max-w-screen-xl mx-auto space-y-10">
-      {/* Top Section */}
+      {/* === Top Section === */}
       <div className="flex flex-col lg:flex-row items-start gap-6">
-        {/* Image */}
         <img
-          src={recipe.img}
-          alt={recipe.name}
+          src={recipe.recipeImage}
+          alt={recipe.recipeName}
           className="w-full lg:w-1/3 h-64 object-cover rounded-lg shadow-md"
         />
 
-        {/* Heading and Buttons */}
         <div className="flex-1 space-y-4">
-          <h2 className="text-2xl font-bold text-gray-800">{recipe.name}</h2>
-          <div className="flex items-center text-yellow-500 text-lg">
-            ★ 4.8
-            <span className="text-gray-600 ml-2 text-sm">(54 ratings)</span>
-          </div>
+          <h2 className="text-2xl font-bold text-gray-800">{recipe.recipeName}</h2>
+          <p className="text-gray-600">{recipe.description}</p>
 
           {/* Buttons */}
           <div className="flex flex-wrap gap-4 mt-2">
-            <button className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium">
-              <FaPlay /> Start Cooking
-            </button>
-            <button className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium">
-              <FaRobot /> Ask AI
-            </button>
             <button
               onClick={handleFavoriteClick}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
                 isFavorite
-                  ? 'bg-yellow-500 text-white'
-                  : 'bg-gray-300 hover:bg-gray-400 text-gray-800'
+                  ? "bg-gray-400 hover:bg-red-500 text-white"
+                  : "bg-gray-300 hover:bg-gray-400 text-gray-800"
               }`}
             >
-              <FaHeart /> {isFavorite ? 'Added to Favorites' : 'Add to Favorites'}
+              {!isFavorite && <FaHeart />}
+              {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
+            </button>
+
+            <button
+              onClick={() =>
+                commentsRef.current?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium"
+            >
+              <FaCommentDots /> Comment
             </button>
           </div>
 
-          {/* Time */}
           <div className="flex gap-6 mt-4">
             <div className="flex items-center gap-2 bg-gray-100 p-3 rounded-lg shadow text-sm text-gray-700">
               <FaClock className="text-yellow-500" />
               <div>
-                <div className="font-semibold text-black text-base">{recipe.cookTime}</div>
+                <div className="font-semibold text-black text-base">
+                  {recipe.expectedTime || "N/A"} mins
+                </div>
                 Cook Time
               </div>
             </div>
@@ -78,35 +149,83 @@ const RecipeDetails = () => {
         </div>
       </div>
 
-      {/* Instructions + Ingredients Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Cooking Instructions - Left Side */}
-        <div className="lg:col-span-2 space-y-6">
-          <h3 className="text-xl font-semibold text-gray-800">Cooking Instructions</h3>
-          {recipe.steps.map((step, index) => (
-            <div key={index} className="bg-white p-4 rounded-lg shadow">
-              <strong>Step {index + 1}:</strong> {step}
-            </div>
-          ))}
-        </div>
-
-        {/* Ingredients - Right Side */}
-        <div className="space-y-3">
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">Ingredients</h3>
-          {recipe.ingredients.map((ing, index) => (
-            <div key={index} className="bg-white p-3 rounded-lg shadow text-gray-700">
-              {ing.name} - {ing.quantity}
-            </div>
-          ))}
-        </div>
+      {/* === ✅ Ingredients Section === */}
+      <div>
+        <h3 className="text-xl font-semibold text-gray-800 mb-3">Ingredients</h3>
+        {recipe.ingradients?.length > 0 ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {recipe.ingradients.map((item, index) => (
+              <div
+                key={index}
+                className="bg-white border border-gray-200 shadow-sm rounded-lg p-3 text-gray-700"
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500">No ingredients listed.</p>
+        )}
       </div>
 
-      {/* Comments Section */}
-      <div className="space-y-4">
-        <h3 className="text-xl font-semibold text-gray-800">Comments</h3>
-        {/* Placeholder: Users can add their comments here */}
-        <div className="bg-white p-4 rounded-lg shadow text-gray-800">
+      {/* === ✅ Steps Section === */}
+      <div>
+        <h3 className="text-xl font-semibold text-gray-800 mb-3">Steps</h3>
+        {recipe.steps?.length > 0 ? (
+          <div className="space-y-3">
+            {recipe.steps.map((step, index) => (
+              <div
+                key={index}
+                className="bg-white border border-gray-200 shadow-sm rounded-lg p-4 text-gray-700"
+              >
+                <span className="font-semibold text-yellow-600">Step {index + 1}:</span> {step}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500">No steps listed.</p>
+        )}
+      </div>
+
+      {/* === ✅ Comments Section === */}
+      <div ref={commentsRef} className="space-y-6">
+        <h3 className="text-xl font-semibold text-gray-800">
+          Comments ({comments.length})
+        </h3>
+
+        {comments.length ? (
+          comments.map((cmt) => (
+            <div
+              key={cmt._id}
+              className="flex gap-3 bg-white border border-gray-200 rounded-lg p-3 shadow-sm"
+            >
+              <Avatar src={cmt.user?.avatar} sx={{ width: 32, height: 32 }} />
+              <div>
+                <p className="font-semibold text-gray-800">
+                  {cmt.user?.fullName || "Anonymous"}
+                </p>
+                <p className="text-gray-700 text-sm">{cmt.content}</p>
+              </div>
+            </div>
+          ))
+        ) : (
           <p className="text-gray-500">No comments yet. Be the first to comment!</p>
+        )}
+
+        <div className="flex gap-3 mt-4">
+          <input
+            type="text"
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            placeholder="Write a comment..."
+            className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-yellow-500"
+          />
+          <button
+            onClick={handlePostComment}
+            className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg"
+          >
+            Post
+          </button>
         </div>
       </div>
     </div>
