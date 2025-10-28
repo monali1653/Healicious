@@ -1,10 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  FaUser,
-  FaEnvelope,
-  FaPhone,
-} from "react-icons/fa";
+import { FaUser, FaEnvelope, FaPhone } from "react-icons/fa";
 import axios from "axios";
 import Loader from "../components/Loader.jsx";
 import { Clock, Eye, Heart } from "lucide-react";
@@ -76,7 +72,6 @@ const MyProfile = () => {
     navigate(`/disease/${recipe.disease}/${recipe.recipeName}`);
   };
 
-  // ✅ Toggle Like Handler
   const handleToggleLike = async (recipeId) => {
     try {
       await axios.post(
@@ -124,31 +119,40 @@ const MyProfile = () => {
     ? user.avatar.split("/").pop().replace(/\.(jpg|jpeg|png)$/, "")
     : "default";
 
-  // ✅ Reusable Card Component (UI same as RecipeCards)
+  // ✅ Responsive + Smaller Card Component
   const RecipeCard = ({ recipe }) => {
     const isLiked = likedRecipes.includes(recipe._id);
     return (
       <div
         key={recipe._id}
-        className="relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 w-72 pt-16 pb-8 px-4 text-center"
+        className="
+          relative bg-white rounded-2xl shadow-md hover:shadow-xl 
+          transition-all duration-300 
+          w-full max-w-[15rem] sm:max-w-[16rem] md:max-w-[18rem]
+          pt-14 pb-6 px-3 text-center
+          flex flex-col items-center
+        "
       >
-        <div className="absolute -top-14 left-1/2 transform -translate-x-1/2">
+        {/* Recipe Image */}
+        <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
           <img
             src={recipe.recipeImage}
             alt={recipe.recipeName}
-            className="w-28 h-28 rounded-full object-cover border-4 border-yellow-300 shadow-lg"
+            className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-yellow-300 shadow-lg"
           />
         </div>
 
-        <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-6">
+        {/* Recipe Title */}
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mt-6 mb-4">
           {recipe.recipeName}
         </h3>
 
-        <div className="flex flex-col items-center gap-4">
+        {/* Recipe Info */}
+        <div className="flex flex-col items-center gap-3 w-full">
           <div className="flex flex-col items-center text-gray-700">
-            <Clock size={22} className="text-yellow-500 mb-1" />
-            <p className="text-sm">Total Time</p>
-            <p className="font-semibold text-gray-900">
+            <Clock size={20} className="text-yellow-500 mb-1" />
+            <p className="text-xs sm:text-sm">Total Time</p>
+            <p className="font-semibold text-gray-900 text-sm">
               {recipe.expectedTime} min
             </p>
           </div>
@@ -161,20 +165,29 @@ const MyProfile = () => {
               className="transition-transform transform hover:scale-110"
             >
               <Heart
-                size={22}
+                size={20}
                 className={`${
                   isLiked ? "fill-red-500 text-red-500" : "text-red-500"
                 }`}
               />
             </button>
-            <span className="font-medium">{recipe.totalLikes || 0}</span>
+            <span className="font-medium text-sm">
+              {recipe.totalLikes || 0}
+            </span>
           </div>
 
           <button
             onClick={() => handleView(recipe)}
-            className="flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition-all duration-300"
+            className="
+              flex items-center justify-center gap-2 
+              bg-yellow-400 hover:bg-yellow-500 
+              text-white font-medium 
+              px-3 py-1.5 rounded-lg 
+              text-sm shadow-sm transition-all duration-300
+              w-full sm:w-auto
+            "
           >
-            <Eye size={18} />
+            <Eye size={16} />
             View Now
           </button>
         </div>
@@ -184,7 +197,7 @@ const MyProfile = () => {
 
   return (
     <div className="flex flex-col items-center px-4 py-10 pt-28">
-      <div className="w-full max-w-5xl">
+      <div className="w-full max-w-6xl">
         {/* ✅ Profile Header */}
         <div className="flex items-center space-x-4 mb-6">
           <img
@@ -225,7 +238,14 @@ const MyProfile = () => {
               No recipes in your wishlist yet.
             </p>
           ) : (
-            <div className="flex flex-wrap justify-center gap-10">
+            <div
+              className="
+                mt-10 /* Added spacing below heading */
+                grid grid-cols-1 
+                sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 
+                gap-8 justify-items-center
+              "
+            >
               {wishlist.map((recipe) => (
                 <RecipeCard key={recipe._id} recipe={recipe} />
               ))}
@@ -245,7 +265,14 @@ const MyProfile = () => {
               You haven't posted any recipes yet.
             </p>
           ) : (
-            <div className="flex flex-wrap justify-center gap-10">
+            <div
+              className="
+                mt-10 /* Added spacing below heading */
+                grid grid-cols-1 
+                sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 
+                gap-8 justify-items-center
+              "
+            >
               {myRecipes.map((recipe) => (
                 <RecipeCard key={recipe._id} recipe={recipe} />
               ))}

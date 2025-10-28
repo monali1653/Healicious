@@ -36,9 +36,7 @@ const RecipeCards = () => {
     navigate(`/disease/${recipe.disease}/${recipe.recipeName}`);
   };
 
-  // ✅ Toggle Like Handler
   const handleToggleLike = async (recipeId) => {
-
     try {
       await axios.post(
         "http://localhost:8000/api/v1/like/toggle-like",
@@ -46,7 +44,6 @@ const RecipeCards = () => {
         { withCredentials: true }
       );
 
-      // Update UI instantly
       setRecipes((prevRecipes) =>
         prevRecipes.map((r) =>
           r._id === recipeId
@@ -60,7 +57,6 @@ const RecipeCards = () => {
         )
       );
 
-      // Toggle liked/unliked state locally
       setLikedRecipes((prevLiked) =>
         prevLiked.includes(recipeId)
           ? prevLiked.filter((id) => id !== recipeId)
@@ -72,8 +68,9 @@ const RecipeCards = () => {
   };
 
   return (
-    <div className="px-6 py-24 bg-yellow-50 min-h-screen">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-10 text-center">
+    <div className="px-4 sm:px-6 md:px-10 py-20 bg-yellow-50 min-h-screen">
+      {/* ✅ Heading unchanged */}
+      <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-14 text-center">
         Diabetes Recipes
       </h2>
 
@@ -84,31 +81,53 @@ const RecipeCards = () => {
           No recipes found for this category.
         </p>
       ) : (
-        <div className="flex flex-wrap justify-center gap-10">
+        <div
+          className="
+            mt-6
+            grid 
+            grid-cols-1
+            sm:grid-cols-2
+            md:grid-cols-3
+            lg:grid-cols-4
+            gap-8
+            justify-items-center
+          "
+        >
           {recipes.map((recipe) => {
             const isLiked = likedRecipes.includes(recipe._id);
 
             return (
               <div
                 key={recipe._id}
-                className="relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 w-72 pt-16 pb-8 px-4 text-center"
+                className="
+                  relative bg-white 
+                  rounded-2xl shadow-md 
+                  hover:shadow-xl transition-all duration-300 
+                  w-full max-w-xs 
+                  pt-16 pb-8 px-4 text-center
+                  flex flex-col items-center
+                "
               >
                 {/* Recipe Image */}
                 <div className="absolute -top-14 left-1/2 transform -translate-x-1/2">
                   <img
                     src={recipe.recipeImage}
                     alt={recipe.recipeName}
-                    className="w-28 h-28 rounded-full object-cover border-4 border-yellow-300 shadow-lg"
+                    className="
+                      w-24 h-24 sm:w-28 sm:h-28 
+                      rounded-full object-cover 
+                      border-4 border-yellow-300 shadow-lg
+                    "
                   />
                 </div>
 
                 {/* Recipe Title */}
-                <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-6">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 mt-8 mb-4">
                   {recipe.recipeName}
                 </h3>
 
                 {/* Recipe Info */}
-                <div className="flex flex-col items-center gap-4">
+                <div className="flex flex-col items-center gap-4 w-full">
                   <div className="flex flex-col items-center text-gray-700">
                     <Clock size={22} className="text-yellow-500 mb-1" />
                     <p className="text-sm">Total Time</p>
@@ -138,7 +157,14 @@ const RecipeCards = () => {
                   {/* View Button */}
                   <button
                     onClick={() => handleView(recipe)}
-                    className="flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition-all duration-300"
+                    className="
+                      flex items-center justify-center gap-2 
+                      bg-yellow-400 hover:bg-yellow-500 
+                      text-white font-medium 
+                      px-4 py-2 rounded-lg 
+                      shadow-sm transition-all duration-300
+                      w-full sm:w-auto
+                    "
                   >
                     <Eye size={18} />
                     View Now
