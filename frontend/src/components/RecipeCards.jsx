@@ -69,9 +69,9 @@ const RecipeCards = () => {
 
   return (
     <div className="px-4 sm:px-6 md:px-10 py-20 bg-yellow-50 min-h-screen">
-      {/* ✅ Heading unchanged */}
-      <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-14 text-center">
-        Diabetes Recipes
+      {/* ✅ Dynamic Heading based on URL param */}
+      <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800 mb-14 text-center capitalize">
+        {category ? `${category} Recipes` : "Recipes"}
       </h2>
 
       {loading ? (
@@ -151,7 +151,9 @@ const RecipeCards = () => {
                         }`}
                       />
                     </button>
-                    <span className="font-medium">{recipe.totalLikes || 0}</span>
+                    <span className="font-medium">
+                      {recipe.totalLikes || 0}
+                    </span>
                   </div>
 
                   {/* View Button */}
