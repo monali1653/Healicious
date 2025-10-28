@@ -39,7 +39,7 @@ const userSchema = new Schema({
     wishlist: [
         {
             type: Schema.Types.ObjectId,
-            ref: "Book"
+            ref: "Recipe"
         }
     ]
 },{timestamps: true})

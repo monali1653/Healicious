@@ -1,8 +1,20 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
+<<<<<<< Updated upstream
 const Login = () => {
   // State for password visibility
+=======
+const Login = ({setIsAuthenticated}) => {
+  const navigate = useNavigate();
+
+  // Form state
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+
+>>>>>>> Stashed changes
   const [showPassword, setShowPassword] = useState(false);
 
   // Handle toggle
@@ -10,6 +22,42 @@ const Login = () => {
     setShowPassword(!showPassword);
   };
 
+<<<<<<< Updated upstream
+=======
+  // Handle form submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess(false);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/v1/users/login",
+        formData,
+        {
+          withCredentials: true
+        }
+      );
+      console.log(response.data);
+      setIsAuthenticated(true);
+
+      setSuccess(true);
+
+      // Navigate to home after 2 seconds
+      setTimeout(() => {
+        setSuccess(false);
+        navigate("/");
+      }, 2000);
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+>>>>>>> Stashed changes
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left: Form Section */}

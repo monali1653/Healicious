@@ -8,6 +8,40 @@ const Signup = () => {
     setShowPassword(!showPassword);
   };
 
+<<<<<<< Updated upstream
+=======
+  // Handle form submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess(false);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:8000/api/v1/users/register",
+        formData,
+        {
+          withCredentials: true
+        }
+      );
+      console.log(response.data);
+      setSuccess(true);
+
+      // Hide success popup after 3 seconds and navigate to login
+      setTimeout(() => {
+        setSuccess(false);
+        navigate("/login");
+      }, 3000);
+    } catch (err) {
+      console.error(err);
+      setError(err.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+>>>>>>> Stashed changes
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left: Form Section */}

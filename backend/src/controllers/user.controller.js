@@ -249,20 +249,20 @@ const deleteAccount = asyncHandler(async (req, res) => {
 
 const toggleWishlist = asyncHandler(async (req, res) => {
   try {
-    const { bookId } = req.body;
-    if (!bookId) {
-      throw new ApiError(400, "Invalid book id");
+    const { recipeId } = req.body;
+    if (!recipeId) {
+      throw new ApiError(400, "Invalid recipe id");
     }
     const user = await User.findById(req.user._id);
     if (!user) {
       throw new ApiError(404, "User not found");
     }
-    const alreadyInWishlist = user.wishlist.includes(bookId);
+    const alreadyInWishlist = user.wishlist.includes(recipeId);
 
     if (alreadyInWishlist) {
-      user.wishlist.pull(bookId);
+      user.wishlist.pull(recipeId);
     } else {
-      user.wishlist.push(bookId);
+      user.wishlist.push(recipeId);
     }
     await user.save();
     await user.populate("wishlist");

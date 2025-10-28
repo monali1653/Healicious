@@ -1,83 +1,130 @@
 import React, { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const RecipeForm = () => {
+  const navigate = useNavigate()
   const [step, setStep] = useState(1);
+  const [errors, setErrors] = useState({});
 
   const [recipe, setRecipe] = useState({
-    name: "",
+    recipeName: "",
+    description: "",
     disease: "",
-    cookTime: "",
-    ingredients: [{ name: "", quantity: "" }],
+    expectedTime: "",
+    ingradients: [""],
     steps: [""],
-    image: null,
+    recipeImage: null,
   });
 
   const diseases = [
+<<<<<<< Updated upstream
     "Diabetes",
     "Heart Disease",
     "Obesity",
     "High Blood Pressure",
     "Thyroid",
+=======
+    "Diabetes", "Anaemia", "Thyroid", "Obesity", "PCOS", "Heart Health",
+    "Hypertension", "Cholesterol", "Liver Health", "Kidney Health",
+    "Digestive Health", "Joint Pain", "Migraine Relief", "Lactose Intolerance",
+    "Gluten Intolerance", "Arthritis", "Depression & Anxiety", "Asthma",
+    "Menopause Support", "Pregnancy Nutrition", "Postpartum Recovery",
+    "Immunity Boost", "Fatty Liver", "Skin Health", "Bone Strength",
+    "Eye Health", "Sleep Improvement", "Allergy-Friendly", "Cancer Recovery",
+    "Detox & Cleanse"
+>>>>>>> Stashed changes
   ];
 
+  // Handle input changes
   const handleChange = (e) => {
     setRecipe({ ...recipe, [e.target.name]: e.target.value });
   };
 
-  const handleIngredientChange = (index, field, value) => {
-    const newIngredients = [...recipe.ingredients];
-    newIngredients[index][field] = value;
-    setRecipe({ ...recipe, ingredients: newIngredients });
+  // Ingredient handlers
+  const handleIngredientChange = (index, value) => {
+    const newIngredients = [...recipe.ingradients];
+    newIngredients[index] = value;
+    setRecipe({ ...recipe, ingradients: newIngredients });
   };
-
-  const addIngredient = () => {
-    setRecipe({
-      ...recipe,
-      ingredients: [...recipe.ingredients, { name: "", quantity: "" }],
-    });
-  };
-
+  const addIngredient = () => setRecipe({ ...recipe, ingradients: [...recipe.ingradients, ""] });
   const removeIngredient = (index) => {
-    const newIngredients = recipe.ingredients.filter((_, i) => i !== index);
-    setRecipe({ ...recipe, ingredients: newIngredients });
+    setRecipe({ ...recipe, ingradients: recipe.ingradients.filter((_, i) => i !== index) });
   };
 
+  // Step handlers
   const handleStepChange = (index, value) => {
     const newSteps = [...recipe.steps];
     newSteps[index] = value;
     setRecipe({ ...recipe, steps: newSteps });
   };
-
-  const addStep = () => {
-    setRecipe({ ...recipe, steps: [...recipe.steps, ""] });
-  };
-
+  const addStep = () => setRecipe({ ...recipe, steps: [...recipe.steps, ""] });
   const removeStep = (index) => {
-    const newSteps = recipe.steps.filter((_, i) => i !== index);
-    setRecipe({ ...recipe, steps: newSteps });
+    setRecipe({ ...recipe, steps: recipe.steps.filter((_, i) => i !== index) });
   };
 
   const handleImageUpload = (e) => {
-    setRecipe({ ...recipe, image: e.target.files[0] });
+    setRecipe({ ...recipe, recipeImage: e.target.files[0] });
   };
 
-  const handleSubmit = async () => {
-    const formData = new FormData();
-    formData.append("name", recipe.name);
-    formData.append("disease", recipe.disease);
-    formData.append("cookTime", recipe.cookTime);
-    formData.append("ingredients", JSON.stringify(recipe.ingredients));
-    formData.append("steps", JSON.stringify(recipe.steps));
-    if (recipe.image) formData.append("image", recipe.image);
-
-    // Example backend call:
-    // await fetch("/api/recipes", { method: "POST", body: formData });
-
-    alert("Recipe saved successfully!");
+  // ✅ Validation before moving to next step
+  const validateStep = () => {
+    const newErrors = {};
+    if (step === 1) {
+      if (!recipe.recipeName.trim()) newErrors.recipeName = "Recipe name is required";
+      if (!recipe.disease.trim()) newErrors.disease = "Please select a disease category";
+      if (!recipe.expectedTime) newErrors.expectedTime = "Expected time is required";
+      // description is optional — no validation needed
+    }
+    if (step === 2) {
+      if (recipe.ingradients.some((i) => !i.trim())) newErrors.ingradients = "All ingredients must be filled";
+    }
+    if (step === 3) {
+      if (recipe.steps.some((s) => !s.trim())) newErrors.steps = "All steps must be filled";
+    }
+    if (step === 4) {
+      if (!recipe.recipeImage) newErrors.recipeImage = "Recipe image is required";
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const nextStep = () => setStep((prev) => Math.min(prev + 1, 4));
+  const nextStep = () => {
+    if (validateStep()) setStep((prev) => Math.min(prev + 1, 4));
+  };
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
+
+  // ✅ Submit using Axios
+  const handleSubmit = async () => {
+    if (!validateStep()) return;
+
+    const formData = new FormData();
+    formData.append("recipeName", recipe.recipeName);
+    formData.append("description", recipe.description); // optional
+    formData.append("disease", recipe.disease);
+    formData.append("expectedTime", recipe.expectedTime);
+    recipe.ingradients.forEach((ing) => formData.append("ingradients", ing));
+    recipe.steps.forEach((st) => formData.append("steps", st));
+    formData.append("recipeImage", recipe.recipeImage);
+
+    try {
+      const res = await axios.post(
+        "http://localhost:8000/api/v1/recipes/post-recipe",
+        formData,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      alert("Recipe posted successfully!");
+      navigate(`/disease/${recipe.disease}`)
+      console.log(res.data);
+    } catch (error) {
+      console.error(error);
+      alert(error.response?.data?.message || "Failed to post recipe");
+    }
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-yellow-100 p-4">
@@ -86,7 +133,7 @@ const RecipeForm = () => {
           Add Recipe
         </h2>
 
-        {/* Progress Dots */}
+        {/* Progress dots */}
         <div className="flex justify-center mb-6 space-x-2">
           {[1, 2, 3, 4].map((num) => (
             <div
@@ -98,29 +145,38 @@ const RecipeForm = () => {
           ))}
         </div>
 
-        {/* Step 1 - Basic Info */}
+        {/* Step 1 — Basic Info */}
         {step === 1 && (
           <div>
-            <label className="block mb-2 text-gray-700 font-medium">
-              Recipe Name
-            </label>
+            <label className="block mb-2 font-medium">Recipe Name</label>
             <input
               type="text"
-              name="name"
-              value={recipe.name}
+              name="recipeName"
+              value={recipe.recipeName}
               onChange={handleChange}
-              className="w-full border rounded-lg p-2 mb-4 focus:ring-2 focus:ring-yellow-400"
+              className="w-full border rounded-lg p-2 mb-2"
               placeholder="Enter recipe name"
             />
+            {errors.recipeName && (
+              <p className="text-red-500 text-sm mb-2">{errors.recipeName}</p>
+            )}
 
-            <label className="block mb-2 text-gray-700 font-medium">
-              Disease Category
-            </label>
+            {/* ✅ New Description field (optional) */}
+            <label className="block mb-2 font-medium">Description (optional)</label>
+            <textarea
+              name="description"
+              value={recipe.description}
+              onChange={handleChange}
+              className="w-full border rounded-lg p-2 mb-4"
+              placeholder="Enter a short description (optional)"
+            />
+
+            <label className="block mb-2 font-medium">Disease Category</label>
             <select
               name="disease"
               value={recipe.disease}
               onChange={handleChange}
-              className="w-full border rounded-lg p-2 mb-4 focus:ring-2 focus:ring-yellow-400"
+              className="w-full border rounded-lg p-2 mb-2"
             >
               <option value="">Select category</option>
               {diseases.map((d, i) => (
@@ -129,53 +185,44 @@ const RecipeForm = () => {
                 </option>
               ))}
             </select>
+            {errors.disease && (
+              <p className="text-red-500 text-sm mb-2">{errors.disease}</p>
+            )}
 
-            <label className="block mb-2 text-gray-700 font-medium">
-              Cook Time (in mins)
-            </label>
+            <label className="block mb-2 font-medium">Expected Time (minutes)</label>
             <input
               type="number"
-              name="cookTime"
-              value={recipe.cookTime}
+              name="expectedTime"
+              value={recipe.expectedTime}
               onChange={handleChange}
-              className="w-full border rounded-lg p-2 mb-6 focus:ring-2 focus:ring-yellow-400"
-              placeholder="Enter time in minutes"
+              className="w-full border rounded-lg p-2 mb-4"
+              placeholder="Enter cooking time"
             />
+            {errors.expectedTime && (
+              <p className="text-red-500 text-sm mb-2">{errors.expectedTime}</p>
+            )}
 
             <button
               onClick={nextStep}
-              className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 rounded-lg"
+              className="w-full bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-lg"
             >
               Next
             </button>
           </div>
         )}
 
-        {/* Step 2 - Ingredients */}
+        {/* Steps 2–4 remain unchanged (Ingredients, Steps, Image) */}
         {step === 2 && (
           <div>
-            <label className="block mb-4 text-gray-700 font-medium">
-              Ingredients
-            </label>
-            {recipe.ingredients.map((ing, index) => (
-              <div key={index} className="flex items-center gap-2 mb-2">
+            <label className="block mb-4 font-medium">Ingredients</label>
+            {recipe.ingradients.map((ing, index) => (
+              <div key={index} className="flex gap-2 mb-2">
                 <input
                   type="text"
-                  value={ing.name}
-                  onChange={(e) =>
-                    handleIngredientChange(index, "name", e.target.value)
-                  }
-                  className="flex-1 border rounded-lg p-2 focus:ring-2 focus:ring-yellow-400"
-                  placeholder="Name"
-                />
-                <input
-                  type="text"
-                  value={ing.quantity}
-                  onChange={(e) =>
-                    handleIngredientChange(index, "quantity", e.target.value)
-                  }
-                  className="w-24 border rounded-lg p-2 focus:ring-2 focus:ring-yellow-400"
-                  placeholder="Qty"
+                  value={ing}
+                  onChange={(e) => handleIngredientChange(index, e.target.value)}
+                  className="flex-1 border rounded-lg p-2"
+                  placeholder={`Ingredient ${index + 1}`}
                 />
                 <button
                   onClick={() => removeIngredient(index)}
@@ -185,6 +232,9 @@ const RecipeForm = () => {
                 </button>
               </div>
             ))}
+            {errors.ingradients && (
+              <p className="text-red-500 text-sm mb-2">{errors.ingradients}</p>
+            )}
             <button
               onClick={addIngredient}
               className="text-yellow-600 font-medium mb-4"
@@ -209,18 +259,15 @@ const RecipeForm = () => {
           </div>
         )}
 
-        {/* Step 3 - Steps */}
         {step === 3 && (
           <div>
-            <label className="block mb-4 text-gray-700 font-medium">
-              Steps
-            </label>
+            <label className="block mb-4 font-medium">Steps</label>
             {recipe.steps.map((st, index) => (
               <div key={index} className="flex items-start gap-2 mb-2">
                 <textarea
                   value={st}
                   onChange={(e) => handleStepChange(index, e.target.value)}
-                  className="flex-1 border rounded-lg p-2 focus:ring-2 focus:ring-yellow-400"
+                  className="flex-1 border rounded-lg p-2"
                   placeholder={`Step ${index + 1}`}
                 />
                 <button
@@ -231,6 +278,9 @@ const RecipeForm = () => {
                 </button>
               </div>
             ))}
+            {errors.steps && (
+              <p className="text-red-500 text-sm mb-2">{errors.steps}</p>
+            )}
             <button
               onClick={addStep}
               className="text-yellow-600 font-medium mb-4"
@@ -255,27 +305,25 @@ const RecipeForm = () => {
           </div>
         )}
 
-        {/* Step 4 - Image Upload */}
         {step === 4 && (
           <div>
-            <label className="block mb-4 text-gray-700 font-medium">
-              Upload Recipe Image
-            </label>
+            <label className="block mb-4 font-medium">Upload Recipe Image</label>
             <input
               type="file"
               accept="image/*"
               onChange={handleImageUpload}
               className="w-full border rounded-lg p-2 mb-4"
             />
+            {errors.recipeImage && (
+              <p className="text-red-500 text-sm mb-2">{errors.recipeImage}</p>
+            )}
 
-            {recipe.image && (
-              <div className="mb-4">
-                <img
-                  src={URL.createObjectURL(recipe.image)}
-                  alt="preview"
-                  className="w-full h-40 object-cover rounded-lg border"
-                />
-              </div>
+            {recipe.recipeImage && (
+              <img
+                src={URL.createObjectURL(recipe.recipeImage)}
+                alt="preview"
+                className="w-full h-40 object-cover rounded-lg border mb-4"
+              />
             )}
 
             <div className="flex justify-between">
@@ -289,7 +337,7 @@ const RecipeForm = () => {
                 onClick={handleSubmit}
                 className="px-4 py-2 bg-yellow-500 text-white rounded-lg"
               >
-                Save
+                Submit
               </button>
             </div>
           </div>
