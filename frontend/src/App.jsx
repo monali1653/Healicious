@@ -32,15 +32,6 @@ function App() {
       <RefreshHandler setIsAuthenticated={setIsAuthenticated} />
       <Navbar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated}/>
       <Routes>
-<<<<<<< Updated upstream
-        <Route path='/' element={<Home/>} />
-        <Route path='/signup' element={<SignUp/>} />
-        <Route path='/login' element={<Login/>} />
-        <Route path='/meals' element={<MealsPage/>} />
-        <Route path='/recipe' element={<RecipeForm/>} />
-        <Route path='/details' element={<RecipeDetails/>} />
-        <Route path='/cards' element={<RecipeCards/>} />
-=======
         <Route path="/" element={<Home isAuthenticated={isAuthenticated} />} />
          <Route
           path="/login"
@@ -74,7 +65,6 @@ function App() {
             />
           }
         />
->>>>>>> Stashed changes
       </Routes>
       <Footer/>
     </Router>

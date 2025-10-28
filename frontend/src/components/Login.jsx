@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-<<<<<<< Updated upstream
-const Login = () => {
-  // State for password visibility
-=======
 const Login = ({setIsAuthenticated}) => {
   const navigate = useNavigate();
 
@@ -14,7 +10,6 @@ const Login = ({setIsAuthenticated}) => {
     password: "",
   });
 
->>>>>>> Stashed changes
   const [showPassword, setShowPassword] = useState(false);
 
   // Handle toggle
@@ -22,8 +17,6 @@ const Login = ({setIsAuthenticated}) => {
     setShowPassword(!showPassword);
   };
 
-<<<<<<< Updated upstream
-=======
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -56,8 +49,7 @@ const Login = ({setIsAuthenticated}) => {
       setLoading(false);
     }
   };
-
->>>>>>> Stashed changes
+  
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left: Form Section */}
