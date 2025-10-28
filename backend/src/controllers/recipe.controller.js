@@ -1,14 +1,16 @@
 import { Recipe } from "../models/recipe.model.js";
-import { asyncHandler } from "../utils/asynchandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import {ApiError} from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
 
 const postRecipe = asyncHandler(async (req,res) => {
     let {recipeName, description, disease, ingradients, steps, expectedTime} = req.body;
-    if([recipeName, description, disease, ingradients, steps, expectedTime].some((field) => field ?.trim() ==="")) {
-      throw new ApiError(400, "All fields are required")
-    }
+    if ([recipeName, disease, ingradients, steps, expectedTime].some(
+      (field) => field == null || (typeof field === "string" && field.trim() === "") || (Array.isArray(field) && field.length === 0) // empty array
+    )) {
+  throw new ApiError(400, "All fields are required");
+}
 
     const recipeImageLocalPath = req.files?.recipeImage?.[0]?.path;
     if(!recipeImageLocalPath) {
@@ -38,15 +40,29 @@ const postRecipe = asyncHandler(async (req,res) => {
     )
 })
 
-const fetchAllRecipes = asyncHandler(async (req, res) => {
-  try {
-    const recipes = await Recipe.find({ status: "approved" });
-    res.status(200).json(new ApiResponse(200,recipes,"All recipes fetched successfully"));
-  } catch (error) {
-    console.error("Error fetching all recipes:", error);
-    throw new ApiError(500,"Internal Server Error")
+const getRecipesByDisease = asyncHandler(async (req, res) => {
+  const { disease } = req.params;
+
+  if (!disease || disease.trim() === "") {
+    throw new ApiError(400, "Disease category is required");
   }
+
+  const recipes = await Recipe.find({
+    disease: { $regex: new RegExp(disease, "i") },
+    status: "approved", // only approved recipes
+  });
+
+  if (!recipes || recipes.length === 0) {
+    return res
+      .status(404)
+      .json(new ApiResponse(404, [], "No recipes found for this disease"));
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, recipes, "Recipes fetched successfully"));
 });
+
 
 const getRecipesPostByMe = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
@@ -60,6 +76,6 @@ const getRecipesPostByMe = asyncHandler(async (req, res) => {
 
 export {
   postRecipe,
-  fetchAllRecipes,
+  getRecipesByDisease,
   getRecipesPostByMe
 }
