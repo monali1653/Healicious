@@ -9,6 +9,7 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [showAvatarPopup, setShowAvatarPopup] = useState(false);
 
   // Form data state
   const [formData, setFormData] = useState({
@@ -16,6 +17,7 @@ const Signup = () => {
     email: "",
     phoneNo: "",
     password: "",
+    avatar: "", // added avatar field
   });
 
   // Handle form field changes
@@ -113,7 +115,7 @@ const Signup = () => {
               <input
                 type="tel"
                 name="phoneNo"
-                value={formData.phone}
+                value={formData.phoneNo}
                 onChange={handleChange}
                 placeholder="+91 98765 43210"
                 required
@@ -147,6 +149,74 @@ const Signup = () => {
                 />
                 Show Password
               </label>
+            </div>
+
+            {/* Avatar Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Avatar (Optional)
+              </label>
+
+              {/* Avatar Preview & Select Button */}
+              <div className="flex items-center space-x-3">
+                {formData.avatar ? (
+                  <img
+                    src={formData.avatar}
+                    alt="Selected Avatar"
+                    className="w-12 h-12 rounded-full border"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full border flex items-center justify-center text-gray-400">
+                    No Avatar
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowAvatarPopup(true)}
+                  className="text-sm text-green-600 hover:underline"
+                >
+                  Select Avatar
+                </button>
+              </div>
+
+              {/* Avatar Popup */}
+              {showAvatarPopup && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                  <div className="bg-white rounded-lg p-6 shadow-lg w-80 relative">
+                    <button
+                      type="button"
+                      onClick={() => setShowAvatarPopup(false)}
+                      className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                    >
+                      ✕
+                    </button>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                      Choose an Avatar
+                    </h3>
+                    <div className="grid grid-cols-3 gap-3">
+                      {[
+                        "/images/avatar1.jpg",
+                        "/images/avatar2.jpg",
+                        "/images/avatar3.jpg",
+                        "/images/avatar4.jpg",
+                        "/images/avatar5.jpg",
+                        "/images/avatar6.jpg",
+                      ].map((avatar, index) => (
+                        <img
+                          key={index}
+                          src={avatar}
+                          alt={`Avatar ${index + 1}`}
+                          onClick={() => {
+                            setFormData((prev) => ({ ...prev, avatar }));
+                            setShowAvatarPopup(false);
+                          }}
+                          className="w-16 h-16 rounded-full border cursor-pointer hover:ring-2 hover:ring-green-500"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Error / Success Messages */}
