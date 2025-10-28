@@ -21,12 +21,14 @@ import recipeRouter from './routes/recipe.routes.js'
 import likeRouter from './routes/like.routes.js'
 import commentRouter from './routes/comment.routes.js'
 import adminRouter from "./routes/admin.routes.js"
+import askRouter from './routes/ask.routes.js'
 
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/recipes", recipeRouter)
 app.use("/api/v1/like", likeRouter)
 app.use("/api/v1/comment", commentRouter)
 app.use("/api/v1/admin", adminRouter)
+app.use("/api/v1/ai", askRouter)
 
 app.use(errorHandler)
 
