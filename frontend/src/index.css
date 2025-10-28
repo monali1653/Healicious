@@ -1,0 +1,13 @@
+html {
+  scroll-behavior: smooth;
+}
+
+
+/* Hide horizontal scrollbar for a cleaner slider */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
