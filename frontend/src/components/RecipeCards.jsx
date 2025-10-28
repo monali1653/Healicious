@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Clock, Eye, Heart } from "lucide-react";
+import { Clock, Eye, ThumbsUp } from "lucide-react";
+import Loader from "./Loader";
 import axios from "axios";
 
 const RecipeCards = () => {
@@ -9,28 +10,32 @@ const RecipeCards = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [likedRecipes, setLikedRecipes] = useState([]);
+  const [totalLikes, setTotalLikes] = useState({});
 
   useEffect(() => {
-    const fetchRecipes = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get(
-          `http://localhost:8000/api/v1/recipes/get-recipes/${category}`,
-          { withCredentials: true }
-        );
+  const fetchRecipes = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(
+        `http://localhost:8000/api/v1/recipes/get-recipes/${category}`,
+        { withCredentials: true }
+      );
+      const recipeData = res.data?.data || [];
+      setRecipes(recipeData);
 
-        const recipeData = res.data?.data || [];
-        setRecipes(recipeData);
-      } catch (err) {
-        console.error("Error fetching recipes:", err);
-        setRecipes([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+      // Fetch likes for each recipe
+      recipeData.forEach((r) => fetchRecipeLikes(r._id));
+    } catch (err) {
+      console.error("Error fetching recipes:", err);
+      setRecipes([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    if (category) fetchRecipes();
-  }, [category]);
+  if (category) fetchRecipes();
+}, [category]);
+
 
   const handleView = (recipe) => {
     navigate(`/disease/${recipe.disease}/${recipe.recipeName}`);
@@ -38,53 +43,78 @@ const RecipeCards = () => {
 
   // ✅ Toggle Like Handler
   const handleToggleLike = async (recipeId) => {
+  try {
+    await axios.post(
+      "http://localhost:8000/api/v1/like/toggle-like",
+      { recipeId },
+      { withCredentials: true }
+    );
 
+    // Refresh the like count for this recipe
+    await fetchRecipeLikes(recipeId);
+
+    // Toggle liked/unliked state
+    setLikedRecipes((prevLiked) =>
+      prevLiked.includes(recipeId)
+        ? prevLiked.filter((id) => id !== recipeId)
+        : [...prevLiked, recipeId]
+    );
+  } catch (error) {
+    console.error("Error toggling like:", error);
+  }
+};
+
+
+
+  useEffect(() => {
+  const fetchUserLikes = async () => {
     try {
-      await axios.post(
-        "http://localhost:8000/api/v1/like/toggle-like",
-        { recipeId },
+      const res = await axios.get(
+        "http://localhost:8000/api/v1/like/user-likes",
         { withCredentials: true }
       );
-
-      // Update UI instantly
-      setRecipes((prevRecipes) =>
-        prevRecipes.map((r) =>
-          r._id === recipeId
-            ? {
-                ...r,
-                totalLikes: likedRecipes.includes(recipeId)
-                  ? r.totalLikes - 1
-                  : r.totalLikes + 1,
-              }
-            : r
-        )
-      );
-
-      // Toggle liked/unliked state locally
-      setLikedRecipes((prevLiked) =>
-        prevLiked.includes(recipeId)
-          ? prevLiked.filter((id) => id !== recipeId)
-          : [...prevLiked, recipeId]
-      );
+      setLikedRecipes(res.data.data || []);
     } catch (error) {
-      console.error("Error toggling like:", error);
+      console.error("Error fetching liked recipes:", error);
     }
   };
 
+  fetchUserLikes();
+}, []);
+
+const fetchRecipeLikes = async (recipeId) => {
+  try {
+    const res = await axios.get(
+      `http://localhost:8000/api/v1/like/get/${recipeId}`,
+      { withCredentials: true }
+    );
+    const count = res.data.data;
+
+    setTotalLikes((prev) => ({
+      ...prev,
+      [recipeId]: count,
+    }));
+  } catch (error) {
+    console.error("Error fetching recipe likes:", error);
+  }
+};
+
+  if (loading)
+    return (
+      <div className="text-center mt-10">
+        <Loader />
+      </div>
+    );
+
+
   return (
     <div className="px-6 py-24 bg-yellow-50 min-h-screen">
-      <h2 className="text-2xl font-semibold text-gray-800 mb-10 text-center">
-        Diabetes Recipes
-      </h2>
-
-      {loading ? (
-        <p className="text-center text-gray-500 text-lg">Loading...</p>
-      ) : recipes.length === 0 ? (
+      {recipes.length === 0 ? (
         <p className="text-center text-gray-500 text-lg">
-          No recipes found for this category.
+          No recipes found for this disease.
         </p>
       ) : (
-        <div className="flex flex-wrap justify-center gap-10">
+        <div className="flex flex-wrap justify-center gap-10 mt-20">
           {recipes.map((recipe) => {
             const isLiked = likedRecipes.includes(recipe._id);
 
@@ -103,21 +133,23 @@ const RecipeCards = () => {
                 </div>
 
                 {/* Recipe Title */}
-                <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-6">
+                <h3 className="text-lg font-semibold text-gray-800 mt-4 mb-4">
                   {recipe.recipeName}
                 </h3>
-
+                <div className="text-sm text-gray-500 mt-4 mb-4">
+                  {recipe.description}
+                </div>
                 {/* Recipe Info */}
                 <div className="flex flex-col items-center gap-4">
                   <div className="flex flex-col items-center text-gray-700">
                     <Clock size={22} className="text-yellow-500 mb-1" />
-                    <p className="text-sm">Total Time</p>
-                    <p className="font-semibold text-gray-900">
-                      {recipe.expectedTime} min
-                    </p>
+                    <div className="flex gap-2">
+                      <p className="text-sm">Total Time</p>
+                      <p className="font-semibold text-gray-900">
+                        {recipe.expectedTime} min
+                      </p>
+                    </div>
                   </div>
-
-                  <div className="w-10 h-px bg-gray-300"></div>
 
                   {/* ❤️ Like Button & Count */}
                   <div className="flex items-center justify-center gap-2 text-gray-700">
@@ -125,14 +157,11 @@ const RecipeCards = () => {
                       onClick={() => handleToggleLike(recipe._id)}
                       className="transition-transform transform hover:scale-110"
                     >
-                      <Heart
-                        size={22}
-                        className={`${
-                          isLiked ? "fill-red-500 text-red-500" : "text-red-500"
-                        }`}
-                      />
+                      <ThumbsUp size={22} className={`${
+                          isLiked ? "fill-blue-500 text-blue-500" : "text-blue-500"
+                        }`}/>
                     </button>
-                    <span className="font-medium">{recipe.totalLikes || 0}</span>
+                    <span className="font-medium">{totalLikes[recipe._id] ?? 0}</span>
                   </div>
 
                   {/* View Button */}

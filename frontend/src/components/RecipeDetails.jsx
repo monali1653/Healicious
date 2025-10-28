@@ -1,15 +1,19 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { FaClock, FaHeart, FaCommentDots } from "react-icons/fa";
+import { FaClock, FaHeart, FaCommentDots, FaThumbsUp } from "react-icons/fa";
 import Avatar from "@mui/material/Avatar";
 import axios from "axios";
 import Loader from "./Loader.jsx";
 
 const RecipeDetails = () => {
   const [isFavorite, setIsFavorite] = useState(false);
+  const { category, dishName } = useParams();
+  const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
+  const [totalLikes, setTotalLikes] = useState(0);
+  const [liked, setLiked] = useState(false);
   const commentsRef = useRef(null);
 
   // ✅ Fetch recipe details
@@ -40,8 +44,24 @@ const RecipeDetails = () => {
     fetchRecipe();
   }, [category, dishName]);
 
-  // ✅ Toggle Wishlist (Add / Remove)
-const handleFavoriteClick = async () => {
+  // ✅ Fetch total likes
+  useEffect(() => {
+    if (!recipe?._id) return;
+    const fetchLikes = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:8000/api/v1/like/get/${recipe._id}`,
+          { withCredentials: true }
+        );
+        setTotalLikes(res.data.data || 0);
+      } catch (err) {
+        console.error("Error fetching likes:", err);
+      }
+    };
+    fetchLikes();
+  }, [recipe]);
+
+  const handleFavoriteClick = async () => {
   try {
     const res = await axios.post(
       "http://localhost:8000/api/v1/users/toggle-wishlist",
@@ -88,8 +108,13 @@ const handleFavoriteClick = async () => {
         { recipeId: recipe._id, content: newComment },
         { withCredentials: true }
       );
+
       if (res.status === 201) {
-        setComments((prev) => [res.data.data, ...prev]);
+        const updated = await axios.get(
+          `http://localhost:8000/api/v1/comment/get-comment/${recipe._id}`,
+          { withCredentials: true }
+        );
+        setComments(updated.data.data.comments || []);
         setNewComment("");
       }
     } catch (err) {
@@ -97,7 +122,13 @@ const handleFavoriteClick = async () => {
     }
   };
 
-  if (loading) return <p className="text-center mt-10"><Loader/></p>;
+  if (loading)
+    return (
+      <div className="text-center mt-10">
+        <Loader />
+      </div>
+    );
+
   if (!recipe) return <p className="text-center mt-10">Recipe not found.</p>;
 
   return (
@@ -114,9 +145,26 @@ const handleFavoriteClick = async () => {
           <h2 className="text-2xl font-bold text-gray-800">{recipe.recipeName}</h2>
           <p className="text-gray-600">{recipe.description}</p>
           
-          {/* Buttons */}
+          
+          {/* === Buttons === */}
           <div className="flex flex-wrap gap-4 mt-2">
+            <div className="mt-2 flex gap-2">
+              <FaThumbsUp className="mt-1 text-amber-300"/>
+              {totalLikes} {totalLikes === 1 ? "Like" : "Likes"}
+            </div>
+              
+
             <button
+              onClick={() =>
+                commentsRef.current?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium"
+            >
+              <FaCommentDots /> Comment
+            </button>
+          </div>
+
+          <button
               onClick={handleFavoriteClick}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
                 isFavorite
@@ -128,15 +176,6 @@ const handleFavoriteClick = async () => {
               {isFavorite ? "Remove from Favorites" : "Add to Favorites"}
             </button>
 
-            <button
-              onClick={() =>
-                commentsRef.current?.scrollIntoView({ behavior: "smooth" })
-              }
-              className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-medium"
-            >
-              <FaCommentDots /> Comment
-            </button>
-          </div>
           <div className="flex gap-6 mt-4">
             <div className="flex items-center gap-2 bg-gray-100 p-3 rounded-lg shadow text-sm text-gray-700">
               <FaClock className="text-yellow-500" />
@@ -147,18 +186,34 @@ const handleFavoriteClick = async () => {
                 Cook Time
               </div>
             </div>
-            <div className="flex items-center gap-2 bg-gray-100 p-3 rounded-lg shadow text-sm text-gray-700">
-              <FaFire className="text-yellow-500" />
-              <div>
-                <div className="font-semibold text-black text-base">1253 kcal</div>
-                Calories
-              </div>
-            </div>
           </div>
         </div>
       </div>
+      
+      {/* === Cooking Instructions === */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <h3 className="text-xl font-semibold text-gray-800">Cooking Instructions</h3>
+          {recipe.steps.map((step, index) => (
+            <div key={index} className="bg-white p-4 rounded-lg shadow">
+              <strong>Step {index + 1}:</strong> {step}
+            </div>
+          ))}
+        </div>
+
+        {/* === Ingredients === */}
+        <div className="space-y-3">
+          <h3 className="text-xl font-semibold text-gray-800 mb-2">Ingredients</h3>
+          {recipe.ingradients.map((ing, index) => (
+            <div key={index} className="bg-white p-3 rounded-lg shadow text-gray-700">
+              {ing}
+            </div>
+          ))}
+        </div>
+      </div>
+
       {/* === Comments Section === */}
-      <div ref={commentsRef} className="space-y-6">
+      <div ref={commentsRef} className="space-y-6 p-4 bg-gray-100 shadow-xl rounded-xl">
         <h3 className="text-xl font-semibold text-gray-800">
           Comments ({comments.length})
         </h3>
@@ -166,7 +221,7 @@ const handleFavoriteClick = async () => {
         {comments.length ? (
           comments.map((cmt) => (
             <div key={cmt._id} className="flex gap-3 p-3">
-              <Avatar src={cmt.user?.avatar} sx={{ width: 32, height: 32 }} />
+              <Avatar src={cmt.user?.avatar} sx={{ width: 32, height: 32 }} className="mt-2"/>
               <div>
                 <p className="font-semibold text-gray-800">
                   {cmt.user?.fullName || "Anonymous"}

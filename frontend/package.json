@@ -16,11 +16,8 @@
     "@mui/icons-material": "^7.3.4",
     "@mui/material": "^7.3.4",
     "@tailwindcss/vite": "^4.1.12",
-<<<<<<< Updated upstream
-=======
     "axios": "^1.12.2",
     "js-cookie": "^3.0.5",
->>>>>>> Stashed changes
     "lucide-react": "^0.540.0",
     "prop-types": "^15.8.1",
     "react": "^19.1.1",

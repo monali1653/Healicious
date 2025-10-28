@@ -52,12 +52,6 @@ const getRecipesByDisease = asyncHandler(async (req, res) => {
     status: "approved", // only approved recipes
   });
 
-  if (!recipes || recipes.length === 0) {
-    return res
-      .status(404)
-      .json(new ApiResponse(404, [], "No recipes found for this disease"));
-  }
-
   return res
     .status(200)
     .json(new ApiResponse(200, recipes, "Recipes fetched successfully"));

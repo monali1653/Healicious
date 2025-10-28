@@ -1,15 +1,33 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Signup = () => {
-  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
+  // Form state
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phoneNo: "",
+    password: "",
+  });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false); // For success popup
+
+  // Handle input change
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // Toggle password visibility
   const handleToggle = () => {
     setShowPassword(!showPassword);
   };
 
-<<<<<<< Updated upstream
-=======
   // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,10 +38,7 @@ const Signup = () => {
     try {
       const response = await axios.post(
         "http://localhost:8000/api/v1/users/register",
-        formData,
-        {
-          withCredentials: true
-        }
+        formData
       );
       console.log(response.data);
       setSuccess(true);
@@ -41,9 +56,8 @@ const Signup = () => {
     }
   };
 
->>>>>>> Stashed changes
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="min-h-screen flex flex-col md:flex-row relative">
       {/* Left: Form Section */}
       <div className="w-full md:w-[40%] flex items-center justify-center bg-white p-8 md:p-16">
         <div className="max-w-md w-full space-y-6">
@@ -59,7 +73,7 @@ const Signup = () => {
           </div>
 
           {/* Form */}
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
             {/* Full Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -67,8 +81,12 @@ const Signup = () => {
               </label>
               <input
                 type="text"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
                 placeholder="John Doe"
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                required
               />
             </div>
 
@@ -79,20 +97,28 @@ const Signup = () => {
               </label>
               <input
                 type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="johndoe123@xyz.com"
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                required
               />
             </div>
 
-            {/* Phone Number */}
+            {/* PhoneNo */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Phone Number
               </label>
               <input
                 type="tel"
+                name="phoneNo"
+                value={formData.phoneNo}
+                onChange={handleChange}
                 placeholder="+91 98765 43210"
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                required
               />
             </div>
 
@@ -103,8 +129,12 @@ const Signup = () => {
               </label>
               <input
                 type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="••••••••"
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                required
               />
             </div>
 
@@ -120,12 +150,18 @@ const Signup = () => {
               </label>
             </div>
 
+            {/* Error Message */}
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+
             {/* Register Button */}
             <button
               type="submit"
-              className="w-full bg-green-600 text-white py-2 rounded-md font-semibold hover:bg-green-700 transition"
+              className={`w-full bg-green-600 text-white py-2 rounded-md font-semibold hover:bg-green-700 transition ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={loading}
             >
-              Register
+              {loading ? "Registering..." : "Register"}
             </button>
 
             {/* Already Have Account */}
@@ -147,6 +183,13 @@ const Signup = () => {
           className="w-full h-full object-cover"
         />
       </div>
+
+      {/* Success Popup */}
+      {success && (
+        <div className="absolute top-5 right-5 bg-green-600 text-white px-4 py-2 rounded-md shadow-lg animate-fadeInOut">
+          Signup successful! Redirecting...
+        </div>
+      )}
     </div>
   );
 };

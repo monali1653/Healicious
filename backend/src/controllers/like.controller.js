@@ -54,43 +54,16 @@ export const getRecipeLikes = asyncHandler(async (req, res) => {
     }
 })
 
-export const getRecipesByDisease = asyncHandler(async (req, res) => {
+export const likedByUser = asyncHandler(async (req, res) => {
   try {
-    const { disease } = req.params;
+    const userId = req.user._id;
+    const likes = await Like.find({ likedBy: userId }).select("recipe");
+    const likedRecipeIds = likes.map((like) => like.recipe.toString());
 
-    if (!disease) {
-      throw new ApiError(400, "disease is required");
-    }
-
-    const recipes = await Recipe.aggregate([
-      {
-        $match: { disease: disease },
-      },
-      {
-        $lookup: {
-          from: "likes",               
-          localField: "_id",           
-          foreignField: "recipe",     
-          as: "likes",
-        },
-      },
-      {
-        $addFields: {
-          totalLikes: { $size: "$likes" },
-        },
-      },
-      {
-        $project: {
-          likes: 0
-        }
-      },
-    ]);
-
-    return res
+    res
       .status(200)
-      .json(new ApiResponse(200, recipes, "Recipes fetched with like counts"));
+      .json(new ApiResponse(200, likedRecipeIds, "User liked recipes fetched"));
   } catch (error) {
-    console.error(error);
-    throw new ApiError(500, "Server Error");
+    throw new ApiError(500,"Something went wrong")
   }
-});
+})

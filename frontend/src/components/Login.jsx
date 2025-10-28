@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
-const Login = ({setIsAuthenticated}) => {
+const Login = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
 
   // Form state
@@ -10,9 +11,19 @@ const Login = ({setIsAuthenticated}) => {
     password: "",
   });
 
+  // UI state
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
 
-  // Handle toggle
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // Toggle password visibility
   const handleToggle = () => {
     setShowPassword(!showPassword);
   };
@@ -28,20 +39,17 @@ const Login = ({setIsAuthenticated}) => {
       const response = await axios.post(
         "http://localhost:8000/api/v1/users/login",
         formData,
-        {
-          withCredentials: true
-        }
+        { withCredentials: true }
       );
+
       console.log(response.data);
       setIsAuthenticated(true);
-
       setSuccess(true);
 
-      // Navigate to home after 2 seconds
+      // Redirect after short delay
       setTimeout(() => {
-        setSuccess(false);
         navigate("/");
-      }, 2000);
+      }, 1500);
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Something went wrong");
@@ -49,16 +57,14 @@ const Login = ({setIsAuthenticated}) => {
       setLoading(false);
     }
   };
-  
+
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left: Form Section */}
       <div className="w-full md:w-[40%] flex items-center justify-center bg-white p-8 md:p-16">
         <div className="max-w-md w-full space-y-6">
-          {/* Logo */}
           <h1 className="text-3xl font-semibold text-gray-800">Healicious</h1>
 
-          {/* Welcome Text */}
           <div>
             <h2 className="text-2xl font-semibold text-gray-800">Welcome Back</h2>
             <p className="text-gray-500 text-sm">
@@ -66,8 +72,7 @@ const Login = ({setIsAuthenticated}) => {
             </p>
           </div>
 
-          {/* Form */}
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
             {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -75,7 +80,11 @@ const Login = ({setIsAuthenticated}) => {
               </label>
               <input
                 type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="johndoe123@xyz.com"
+                required
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
@@ -87,18 +96,23 @@ const Login = ({setIsAuthenticated}) => {
               </label>
               <input
                 type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
                 placeholder="••••••••"
+                required
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
 
-            {/* Remember Me + Forgot Password */}
+            {/* Show Password + Forgot Password */}
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center cursor-pointer">
                 <input
                   type="checkbox"
-                  className="text-green-600 mr-2"
+                  checked={showPassword}
                   onChange={handleToggle}
+                  className="text-green-600 mr-2"
                 />
                 Show Password
               </label>
@@ -107,12 +121,19 @@ const Login = ({setIsAuthenticated}) => {
               </a>
             </div>
 
-            {/* Sign In Button */}
+            {/* Error or Success Messages */}
+            {error && <p className="text-red-600 text-sm">{error}</p>}
+            {success && <p className="text-green-600 text-sm">Login successful!</p>}
+
+            {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-green-600 text-white py-2 rounded-md font-semibold hover:bg-green-700 transition"
+              disabled={loading}
+              className={`w-full bg-green-600 text-white py-2 rounded-md font-semibold hover:bg-green-700 transition ${
+                loading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
             >
-              Sign In
+              {loading ? "Signing In..." : "Sign In"}
             </button>
 
             {/* Sign Up Link */}
@@ -129,7 +150,7 @@ const Login = ({setIsAuthenticated}) => {
       {/* Right: Image Section */}
       <div className="w-full md:w-[60%] flex items-center justify-center bg-gray-100">
         <img
-          src="/images/log.jpg" // Replace with your image path
+          src="/images/log.jpg"
           alt="Healthy meal"
           className="w-full h-full object-cover"
         />

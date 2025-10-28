@@ -18,13 +18,6 @@ const RecipeForm = () => {
   });
 
   const diseases = [
-<<<<<<< Updated upstream
-    "Diabetes",
-    "Heart Disease",
-    "Obesity",
-    "High Blood Pressure",
-    "Thyroid",
-=======
     "Diabetes", "Anaemia", "Thyroid", "Obesity", "PCOS", "Heart Health",
     "Hypertension", "Cholesterol", "Liver Health", "Kidney Health",
     "Digestive Health", "Joint Pain", "Migraine Relief", "Lactose Intolerance",
@@ -33,7 +26,6 @@ const RecipeForm = () => {
     "Immunity Boost", "Fatty Liver", "Skin Health", "Bone Strength",
     "Eye Health", "Sleep Improvement", "Allergy-Friendly", "Cancer Recovery",
     "Detox & Cleanse"
->>>>>>> Stashed changes
   ];
 
   // Handle input changes
