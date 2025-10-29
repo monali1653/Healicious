@@ -47,9 +47,15 @@ const getRecipesByDisease = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Disease category is required");
   }
 
+  const userId = req.user?._id;
+
+  // Show approved recipes for everyone + include requester's own pending recipes
   const recipes = await Recipe.find({
     disease: { $regex: new RegExp(disease, "i") },
-    status: "approved", // only approved recipes
+    $or: [
+      { status: "approved" },
+      { status: "pending", user: userId },
+    ],
   });
 
   return res
@@ -68,8 +74,25 @@ const getRecipesPostByMe = asyncHandler(async (req, res) => {
   );
 });
 
+// Distinct disease categories: approved for all users + include requester's pending
+const getRecipeCategories = asyncHandler(async (req, res) => {
+  const userId = req.user?._id;
+
+  const categories = await Recipe.distinct("disease", {
+    $or: [
+      { status: "approved" },
+      { status: "pending", user: userId },
+    ],
+  });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, categories.sort(), "Categories fetched"));
+});
+
 export {
   postRecipe,
   getRecipesByDisease,
-  getRecipesPostByMe
+  getRecipesPostByMe,
+  getRecipeCategories
 }

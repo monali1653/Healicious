@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { postRecipe,getRecipesByDisease,getRecipesPostByMe } from "../controllers/recipe.controller.js";
+import { postRecipe,getRecipesByDisease,getRecipesPostByMe, getRecipeCategories } from "../controllers/recipe.controller.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
@@ -13,5 +13,6 @@ router.route("/post-recipe").post(verifyJWT,upload.fields([
 ]), postRecipe)
 router.route("/get-recipes/:disease").get(verifyJWT, getRecipesByDisease);
 router.route("/posted-by-user").get(verifyJWT, getRecipesPostByMe)
+router.route("/categories").get(verifyJWT, getRecipeCategories)
 
 export default router

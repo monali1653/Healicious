@@ -246,15 +246,15 @@ const RecipeCards = () => {
         </div>
       )}
 
-      {/* Persistent Ask AI CTA */}
+      {/* Persistent Ask AI CTA (mobile-safe) */}
       {!loading && recipes.length > 0 && (
-        <div className="fixed left-0 right-0 bottom-6 flex justify-center pointer-events-auto">
+        <div className="md:fixed md:left-0 md:right-0 md:bottom-6 flex justify-center px-4 mt-8">
           <button
             onClick={handleAskAI}
-            className="flex items-center gap-3 bg-yellow-500 hover:bg-yellow-600 text-white font-medium px-5 py-3 rounded-full shadow-lg transition-all duration-300"
+            className="w-full max-w-[360px] md:max-w-none md:w-auto flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white font-medium px-4 py-2 md:px-5 md:py-3 rounded-full shadow-lg transition-all duration-300 text-sm md:text-base"
           >
             <MessageSquare size={18} />
-            Ask AI for a custom recipe
+            <span className="truncate">Ask AI for a custom recipe</span>
           </button>
         </div>
       )}

@@ -69,7 +69,32 @@ const Home = ({ isAuthenticated }) => {
     { name: "Detox & Cleanse", icon: <FaLeaf />, path: "/disease/detox" },
   ];
 
-  const allDiseases = [...diseases, ...extraDiseases];
+  const [dynamicDiseases, setDynamicDiseases] = useState([]);
+  const allDiseases = [...diseases, ...extraDiseases, ...dynamicDiseases];
+
+  // Fetch dynamic categories (approved + my pending)
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/v1/recipes/categories", {
+          credentials: "include",
+        });
+        const data = await res.json();
+        const cats = Array.isArray(data?.data) ? data.data : [];
+        const mapped = cats
+          .filter((c) => c && typeof c === "string")
+          .map((name) => ({
+            name,
+            icon: <FaLeaf />,
+            path: `/disease/${encodeURIComponent(name.toLowerCase())}`,
+          }));
+        setDynamicDiseases(mapped);
+      } catch (e) {
+        // ignore network errors; static lists will still render
+      }
+    };
+    fetchCategories();
+  }, []);
 
   // Scroll handler
   const handleScroll = (direction) => {
@@ -275,56 +300,62 @@ const Home = ({ isAuthenticated }) => {
           </div>
         </div>
 
-        {/* Scroll Buttons */}
-        <button
-          onClick={() => handleScroll("left")}
-          className="absolute left-8 top-1/2 transform -translate-y-1/2 bg-yellow-400/90 hover:bg-yellow-500 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-10"
-        >
-          <FaChevronLeft />
-        </button>
+        {/* Disease Slider + Scroll Buttons contained to avoid overlapping search */}
+        <div className="relative mt-2">
+          {/* Left Button */}
+          <button
+            onClick={() => handleScroll("left")}
+            className="hidden sm:flex items-center justify-center absolute -left-2 md:left-0 top-1/2 -translate-y-1/2 bg-yellow-400/90 hover:bg-yellow-500 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-10"
+            aria-label="Scroll left"
+          >
+            <FaChevronLeft />
+          </button>
 
-        <button
-          onClick={() => handleScroll("right")}
-          className="absolute right-8 top-1/2 transform -translate-y-1/2 bg-yellow-400/90 hover:bg-yellow-500 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-10"
-        >
-          <FaChevronRight />
-        </button>
+          {/* Right Button */}
+          <button
+            onClick={() => handleScroll("right")}
+            className="hidden sm:flex items-center justify-center absolute -right-2 md:right-0 top-1/2 -translate-y-1/2 bg-yellow-400/90 hover:bg-yellow-500 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-10"
+            aria-label="Scroll right"
+          >
+            <FaChevronRight />
+          </button>
 
-        {/* Disease Slider */}
-        <div
-          ref={scrollRef}
-          className="flex overflow-x-auto scrollbar-hide gap-4 md:gap-6 pb-4 px-1 scroll-smooth"
-        >
-          {filteredDiseases.length > 0 ? (
-            filteredDiseases.map((item, index) => (
-              <button
-                key={index}
-                onClick={() => navigate(item.path)}
-                className={`flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full shadow-sm border transition-all duration-300 ${
-                  item.active
-                    ? "bg-black text-white border-black"
-                    : "bg-gray-50 hover:bg-yellow-50 text-gray-700 border-gray-200"
-                }`}
-              >
-                <span className="text-yellow-500 text-lg">{item.icon}</span>
-                <span className="font-medium text-sm md:text-base whitespace-nowrap">
-                  {item.name}
-                </span>
-              </button>
-            ))
-          ) : (
-            <div className="flex flex-col items-center justify-center gap-3 w-full">
-              <p className="text-gray-500 text-center">No diseases found 😢</p>
-              <button
-                onClick={handleAskAI}
-                disabled={!searchTerm.trim()}
-                className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 disabled:opacity-60 text-white font-medium px-5 py-2 rounded-full shadow-md transition-all duration-300"
-              >
-                <MessageSquare size={18} />
-                Ask AI about "{searchTerm || "this"}"
-              </button>
-            </div>
-          )}
+          {/* Slider */}
+          <div
+            ref={scrollRef}
+            className="flex overflow-x-auto scrollbar-hide gap-4 md:gap-6 pb-4 px-1 scroll-smooth"
+          >
+            {filteredDiseases.length > 0 ? (
+              filteredDiseases.map((item, index) => (
+                <button
+                  key={index}
+                  onClick={() => navigate(item.path)}
+                  className={`flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full shadow-sm border transition-all duration-300 ${
+                    item.active
+                      ? "bg-black text-white border-black"
+                      : "bg-gray-50 hover:bg-yellow-50 text-gray-700 border-gray-200"
+                  }`}
+                >
+                  <span className="text-yellow-500 text-lg">{item.icon}</span>
+                  <span className="font-medium text-sm md:text-base whitespace-nowrap">
+                    {item.name}
+                  </span>
+                </button>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center gap-3 w-full">
+                <p className="text-gray-500 text-center">No diseases found 😢</p>
+                <button
+                  onClick={handleAskAI}
+                  disabled={!searchTerm.trim()}
+                  className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 disabled:opacity-60 text-white font-medium px-5 py-2 rounded-full shadow-md transition-all duration-300"
+                >
+                  <MessageSquare size={18} />
+                  Ask AI about "{searchTerm || "this"}"
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </section>
   )}

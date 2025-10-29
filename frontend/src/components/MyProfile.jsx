@@ -59,7 +59,7 @@ const MyProfile = () => {
     const fetchMyRecipes = async () => {
       try {
         const res = await axios.get(
-          "http://localhost:8000/api/v1/recipes/my-recipes",
+          "http://localhost:8000/api/v1/recipes/posted-by-user",
           { withCredentials: true }
         );
         setMyRecipes(res.data?.data || []);
@@ -234,8 +234,8 @@ const MyProfile = () => {
         </section>
 
         {/* ✅ My Recipes Section */}
-        <section>
-          <h2 className="text-2xl font-semibold text-gray-800 mb-8 text-center">
+        <section className="mt-16 pt-4">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-10 text-center">
             Recipes Posted by Me
           </h2>
           {loadingMyRecipes ? (
@@ -245,7 +245,7 @@ const MyProfile = () => {
               You haven't posted any recipes yet.
             </p>
           ) : (
-            <div className="flex flex-wrap justify-center gap-10">
+            <div className="flex flex-wrap justify-center gap-10 mt-6 pt-6">
               {myRecipes.map((recipe) => (
                 <RecipeCard key={recipe._id} recipe={recipe} />
               ))}

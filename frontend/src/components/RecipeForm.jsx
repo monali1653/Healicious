@@ -16,8 +16,8 @@ const RecipeForm = () => {
     steps: [""],
     recipeImage: null,
   });
-
-  const diseases = [
+  
+  const initialDiseases = [
     "Diabetes", "Anaemia", "Thyroid", "Obesity", "PCOS", "Heart Health",
     "Hypertension", "Cholesterol", "Liver Health", "Kidney Health",
     "Digestive Health", "Joint Pain", "Migraine Relief", "Lactose Intolerance",
@@ -27,6 +27,8 @@ const RecipeForm = () => {
     "Eye Health", "Sleep Improvement", "Allergy-Friendly", "Cancer Recovery",
     "Detox & Cleanse"
   ];
+  const [diseases, setDiseases] = useState(initialDiseases);
+  const [otherDisease, setOtherDisease] = useState("");
 
   // Handle input changes
   const handleChange = (e) => {
@@ -64,7 +66,11 @@ const RecipeForm = () => {
     const newErrors = {};
     if (step === 1) {
       if (!recipe.recipeName.trim()) newErrors.recipeName = "Recipe name is required";
-      if (!recipe.disease.trim()) newErrors.disease = "Please select a disease category";
+      if (!recipe.disease.trim()) {
+        newErrors.disease = "Please select a disease category";
+      } else if (recipe.disease === "Other" && !otherDisease.trim()) {
+        newErrors.disease = "Please enter a category name";
+      }
       if (!recipe.expectedTime) newErrors.expectedTime = "Expected time is required";
       // description is optional — no validation needed
     }
@@ -82,7 +88,15 @@ const RecipeForm = () => {
   };
 
   const nextStep = () => {
-    if (validateStep()) setStep((prev) => Math.min(prev + 1, 4));
+    if (!validateStep()) return;
+    if (step === 1 && recipe.disease === "Other" && otherDisease.trim()) {
+      const newCategory = otherDisease.trim();
+      if (!diseases.includes(newCategory)) {
+        setDiseases((prev) => [...prev, newCategory]);
+      }
+      setRecipe((prev) => ({ ...prev, disease: newCategory }));
+    }
+    setStep((prev) => Math.min(prev + 1, 4));
   };
   const prevStep = () => setStep((prev) => Math.max(prev - 1, 1));
 
@@ -167,7 +181,10 @@ const RecipeForm = () => {
             <select
               name="disease"
               value={recipe.disease}
-              onChange={handleChange}
+              onChange={(e) => {
+                setRecipe({ ...recipe, disease: e.target.value });
+                if (e.target.value !== "Other") setOtherDisease("");
+              }}
               className="w-full border rounded-lg p-2 mb-2"
             >
               <option value="">Select category</option>
@@ -176,9 +193,26 @@ const RecipeForm = () => {
                   {d}
                 </option>
               ))}
+              <option value="Other">Other</option>
             </select>
             {errors.disease && (
               <p className="text-red-500 text-sm mb-2">{errors.disease}</p>
+            )}
+
+            {recipe.disease === "Other" && (
+              <div className="mb-4">
+                <label className="block mb-2 font-medium">Enter new category</label>
+                <input
+                  type="text"
+                  value={otherDisease}
+                  onChange={(e) => setOtherDisease(e.target.value)}
+                  placeholder="e.g., Thyroid Support Advanced"
+                  className="w-full border rounded-lg p-2"
+                />
+                {!otherDisease.trim() && (
+                  <p className="text-gray-500 text-xs mt-1">Please provide a category name to continue.</p>
+                )}
+              </div>
             )}
 
             <label className="block mb-2 font-medium">Expected Time (minutes)</label>
