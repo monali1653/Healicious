@@ -161,7 +161,7 @@ const Home = ({ isAuthenticated }) => {
             </div>
           )}
           {/* Stats Section */}
-          <div className="flex flex-col sm:flex-row gap-6 mt-10 justify-center md:justify-start">
+          <div className="flex flex-row sm:gap-6 mt-10 justify-start">
             <div className="flex flex-col items-center bg-gray-50 rounded-xl p-4 shadow-sm w-32">
               <FaStar className="text-yellow-500 text-2xl mb-1" />
               <p className="font-semibold text-gray-800">(4.8)</p>
