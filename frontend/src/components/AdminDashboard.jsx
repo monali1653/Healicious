@@ -20,7 +20,7 @@ const AdminDashboard = () => {
 
   const handleApprove = async (recipeId) => {
     try {
-      await api.put("http://localhost:8000/api/v1/admin/approve", {recipeId});
+      await api.put("/api/v1/admin/approve", {recipeId});
       setPendingRecipes((prev) => prev.filter((recipe) => recipe._id !== recipeId));
     } catch (error) {
       console.error("Approve failed", error);
@@ -31,7 +31,7 @@ const AdminDashboard = () => {
 
     try {
       await api.put(
-        "http://localhost:8000/api/v1/admin/reject",
+        "/api/v1/admin/reject",
         { recipeId }
       );
       setPendingRecipes((prev) => prev.filter((recipe) => recipe._id !== recipeId));
