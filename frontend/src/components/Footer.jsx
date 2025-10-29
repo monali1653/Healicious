@@ -21,7 +21,7 @@ const Footer = () => {
             <img
               src="/images/logo.jpg"
               alt="Healicious Logo"
-              className="w-10 h-10 object-contain"
+              className="w-8 sm:w-10 h-auto max-h-10 object-contain"
             />
             <h2 className="text-3xl font-extrabold">
               <span className="text-gray-800">HEAL</span>
