@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../api/axiosInstance";
 import { useNavigate } from "react-router-dom";
 
 const RecipeForm = () => {
@@ -114,11 +114,10 @@ const RecipeForm = () => {
     formData.append("recipeImage", recipe.recipeImage);
 
     try {
-      const res = await axios.post(
-        "http://localhost:8000/api/v1/recipes/post-recipe",
+      const res = await api.post(
+        "/api/v1/recipes/post-recipe",
         formData,
         {
-          withCredentials: true,
           headers: { "Content-Type": "multipart/form-data" },
         }
       );

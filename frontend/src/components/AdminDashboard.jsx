@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Loader from "../components/Loader.jsx";
-import axios from "axios"
+import api from "../api/axiosInstance.js";
 import { FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 
 const AdminDashboard = () => {
@@ -9,7 +9,7 @@ const AdminDashboard = () => {
 
   const fetchPendingRecipes = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/v1/admin/pending", {withCredentials: true});
+      const res = await api.get("/api/v1/admin/pending");
       setPendingRecipes(res.data.data);
     } catch (error) {
       console.error("Failed to fetch pending Recipes", error);
@@ -20,7 +20,7 @@ const AdminDashboard = () => {
 
   const handleApprove = async (recipeId) => {
     try {
-      await axios.put("http://localhost:8000/api/v1/admin/approve", {recipeId}, {withCredentials: true});
+      await api.put("http://localhost:8000/api/v1/admin/approve", {recipeId});
       setPendingRecipes((prev) => prev.filter((recipe) => recipe._id !== recipeId));
     } catch (error) {
       console.error("Approve failed", error);
@@ -30,10 +30,9 @@ const AdminDashboard = () => {
   const handleReject = async (recipeId) => {
 
     try {
-      await axios.put(
+      await api.put(
         "http://localhost:8000/api/v1/admin/reject",
-        { recipeId },
-        {withCredentials: true}
+        { recipeId }
       );
       setPendingRecipes((prev) => prev.filter((recipe) => recipe._id !== recipeId));
     } catch (error) {

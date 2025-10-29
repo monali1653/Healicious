@@ -5,7 +5,7 @@ import { FaUser } from "react-icons/fa";
 import {Menubar}   from "./Menubar";
 import PropTypes from "prop-types";
 import Cookies from "js-cookie";
-import axios from "axios"; 
+import api from "../api/axiosInstance"; 
 
 const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -20,10 +20,8 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   ];
   useEffect(() => {
     if (!isAuthenticated) return setUser(null);
-    axios
-      .get("http://localhost:8000/api/v1/users/myprofile", {
-        withCredentials: true,
-      })
+    api
+      .get("/api/v1/users/myprofile")
       .then((res) => setUser(res.data.data))
       .catch((err) => console.error("Fetch user failed:", err));
   }, [isAuthenticated]);
@@ -31,9 +29,7 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   // ✅ Logout handler
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:8000/api/v1/users/logout",{}, {
-        withCredentials: true
-      });
+      await api.post("/api/v1/users/logout",{});
       Cookies.remove("token");
       setIsAuthenticated(false);
       navigate("/");

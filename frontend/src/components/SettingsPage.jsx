@@ -3,7 +3,7 @@ import { FaUser, FaExclamationTriangle } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from "axios";
+import api from "../api/axiosInstance";
 
 const SettingsPage = () => {
   const navigate = useNavigate();
@@ -36,9 +36,7 @@ const SettingsPage = () => {
   // ✅ Fetch user profile
   const fetchUserDetails = async () => {
     try {
-      const res = await axios.get("http://localhost:8000/api/v1/users/myprofile", {
-        withCredentials: true,
-      });
+      const res = await api.get("/api/v1/users/myprofile");
       const { fullName, email, phoneNo } = res.data.data;
       setFullName(fullName);
       setEmail(email);
@@ -84,9 +82,7 @@ const SettingsPage = () => {
     }
 
     try {
-      await axios.put("http://localhost:8000/api/v1/users/update", payload, {
-        withCredentials: true,
-      });
+      await api.put("/api/v1/users/update", payload);
 
       setEditStates((prev) => ({ ...prev, [field]: false }));
 
@@ -111,10 +107,9 @@ const SettingsPage = () => {
     }
 
     try {
-      await axios.post(
-        "http://localhost:8000/api/v1/users/change-password",
-        { oldPassword, newPassword: oldPassword },
-        { withCredentials: true }
+      await api.post(
+        "/api/v1/users/change-password",
+        { oldPassword, newPassword: oldPassword }
       );
       setStep(2);
       setErrorMessage("");
@@ -131,10 +126,9 @@ const SettingsPage = () => {
     }
 
     try {
-      await axios.post(
-        "http://localhost:8000/api/v1/users/change-password",
-        { oldPassword, newPassword },
-        { withCredentials: true }
+      await api.post(
+        "/api/v1/users/change-password",
+        { oldPassword, newPassword }
       );
 
       setOldPassword("");
@@ -162,10 +156,9 @@ const SettingsPage = () => {
   // ✅ Delete account
   const handleDeleteAccount = async () => {
     try {
-      await axios.post(
-        "http://localhost:8000/api/v1/users/delete-account",
-        { password: deletePassword },
-        { withCredentials: true }
+      await api.post(
+        "/api/v1/users/delete-account",
+        { password: deletePassword }
       );
 
       toast.success("Account deleted successfully. Redirecting...", {

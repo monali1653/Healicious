@@ -10,7 +10,6 @@ import {
   Navigate,
 } from "react-router-dom";
 import './App.css'
-import MealsPage from './components/MealsPage'
 import RecipeForm from './components/RecipeForm'
 import RecipeDetails from './components/RecipeDetails'
 import RecipeCards from './components/RecipeCards'

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { FaClock, FaHeart, FaCommentDots, FaThumbsUp } from "react-icons/fa";
 import Avatar from "@mui/material/Avatar";
-import axios from "axios";
+import api from "../api/axiosInstance.js";
 import Loader from "./Loader.jsx";
 
 const RecipeDetails = () => {
@@ -13,7 +13,6 @@ const RecipeDetails = () => {
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [totalLikes, setTotalLikes] = useState(0);
-  const [liked, setLiked] = useState(false);
   const commentsRef = useRef(null);
 
   // ✅ Fetch recipe details
@@ -21,9 +20,9 @@ const RecipeDetails = () => {
     const fetchRecipe = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(
-          `http://localhost:8000/api/v1/recipes/get-recipes/${category}`,
-          { withCredentials: true }
+        const res = await api.get(
+          `/api/v1/recipes/get-recipes/${category}`
+          
         );
 
         const recipes = res.data.data || res.data;
@@ -48,9 +47,8 @@ const RecipeDetails = () => {
     if (!recipe?._id) return;
     const fetchLikes = async () => {
       try {
-        const res = await axios.get(
-          `http://localhost:8000/api/v1/like/get/${recipe._id}`,
-          { withCredentials: true }
+        const res = await api.get(
+          `/api/v1/like/get/${recipe._id}`
         );
         setTotalLikes(res.data.data || 0);
       } catch (err) {
@@ -62,10 +60,9 @@ const RecipeDetails = () => {
 
   const handleFavoriteClick = async () => {
   try {
-    const res = await axios.post(
-      "http://localhost:8000/api/v1/users/toggle-wishlist",
-      { recipeId: recipe._id },
-      { withCredentials: true }
+    const res = await api.post(
+      "/api/v1/users/toggle-wishlist",
+      { recipeId: recipe._id }
     );
 
     const message = res.data.message
@@ -87,9 +84,8 @@ const RecipeDetails = () => {
     const fetchComments = async () => {
       if (!recipe?._id) return;
       try {
-        const res = await axios.get(
-          `http://localhost:8000/api/v1/comment/get-comment/${recipe._id}`,
-          { withCredentials: true }
+        const res = await api.get(
+          `/api/v1/comment/get-comment/${recipe._id}`
         );
         setComments(res.data.data?.comments || []);
       } catch (err) {
@@ -104,9 +100,8 @@ useEffect(() => {
   const checkFavoriteStatus = async () => {
     if (!recipe?._id) return;
     try {
-      const res = await axios.get(
-        "http://localhost:8000/api/v1/users/wishlist",
-        { withCredentials: true }
+      const res = await api.get(
+        "/api/v1/users/wishlist"
       );
 
       const wishlist = res.data.data || [];
@@ -124,16 +119,14 @@ useEffect(() => {
   const handlePostComment = async () => {
     if (!newComment.trim()) return alert("Please enter a comment!");
     try {
-      const res = await axios.post(
-        "http://localhost:8000/api/v1/comment/post-comment",
-        { recipeId: recipe._id, content: newComment },
-        { withCredentials: true }
+      const res = await api.post(
+        "/api/v1/comment/post-comment",
+        { recipeId: recipe._id, content: newComment }
       );
 
       if (res.status === 201) {
-        const updated = await axios.get(
-          `http://localhost:8000/api/v1/comment/get-comment/${recipe._id}`,
-          { withCredentials: true }
+        const updated = await api.get(
+          `/api/v1/comment/get-comment/${recipe._id}`
         );
         setComments(updated.data.data.comments || []);
         setNewComment("");

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api/axiosInstance";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -34,10 +34,9 @@ const Signup = () => {
     setSuccess(false);
 
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/v1/users/register",
-        formData,
-        { withCredentials: true }
+      const response = await api.post(
+        "/api/v1/users/register",
+        formData
       );
       console.log("✅ Registration successful:", response.data);
       setSuccess(true);
@@ -79,7 +78,7 @@ const Signup = () => {
                 name="fullName"
                 value={formData.fullName}
                 onChange={handleChange}
-                placeholder="John Doe"
+                placeholder="Enter your Full Name"
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
               />
@@ -95,7 +94,7 @@ const Signup = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="johndoe123@xyz.com"
+                placeholder="Enter your email"
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
               />
@@ -111,7 +110,7 @@ const Signup = () => {
                 name="phoneNo"
                 value={formData.phoneNo}
                 onChange={handleChange}
-                placeholder="+91 98765 43210"
+                placeholder="Enter your phone number"
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
               />
@@ -127,7 +126,7 @@ const Signup = () => {
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="••••••••"
+                placeholder="Enter your password"
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                 required
               />

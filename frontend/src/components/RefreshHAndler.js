@@ -1,16 +1,14 @@
 import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios"
+import api from "../api/axiosInstance";
 
 const RefreshHandler = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8000/api/v1/users/me",{
-        withCredentials: true
-      })
+    api
+      .get("/api/v1/users/me")
       .then((res) => {
         const user = res.data;
         setIsAuthenticated(user);

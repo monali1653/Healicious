@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api/axiosInstance";
 
 const Login = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
@@ -25,10 +25,9 @@ const Login = ({ setIsAuthenticated }) => {
     setSuccess(false);
 
     try {
-      const response = await axios.post(
-        "http://localhost:8000/api/v1/users/login",
-        formData,
-        { withCredentials: true }
+      const response = await api.post(
+        "/api/v1/users/login",
+        formData
       );
 
       console.log(response.data);
@@ -69,7 +68,7 @@ const Login = ({ setIsAuthenticated }) => {
                 type="email"
                 name="email"
                 value={formData.email}
-                placeholder="johndoe123@xyz.com"
+                placeholder="Enter your email"
                 required
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
@@ -84,7 +83,7 @@ const Login = ({ setIsAuthenticated }) => {
                 type={showPassword ? "text" : "password"}
                 name="password"
                 value={formData.password}
-                placeholder="••••••••"
+                placeholder="Enter your password"
                 required
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"

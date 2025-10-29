@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-import axios from "axios";
+import api from "../api/axiosInstance";
 
 const AskAI = () => {
   const location = useLocation();
@@ -32,7 +32,7 @@ const AskAI = () => {
         ingredients,
       };
 
-      const res = await axios.post("http://localhost:8000/api/v1/ai/ask", payload, {
+      const res = await api.post("/api/v1/ai/ask", payload, {
         headers: { "Content-Type": "application/json" },
       });
 

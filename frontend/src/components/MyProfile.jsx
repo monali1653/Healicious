@@ -1,13 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  FaUser,
-  FaEnvelope,
-  FaPhone,
-} from "react-icons/fa";
-import axios from "axios";
+import { FaUser, FaEnvelope, FaPhone } from "react-icons/fa";
+import api from "../api/axiosInstance.js";
 import Loader from "../components/Loader.jsx";
-import { Clock, Eye, Heart } from "lucide-react";
+import { Clock, Eye } from "lucide-react";
+import Avatar from "@mui/material/Avatar";
 
 const MyProfile = () => {
   const navigate = useNavigate();
@@ -23,10 +20,7 @@ const MyProfile = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:8000/api/v1/users/myprofile",
-          { withCredentials: true }
-        );
+        const res = await api.get("/api/v1/users/myprofile");
         setUser(res.data.data);
       } catch (err) {
         console.error("❌ Failed to fetch user:", err);
@@ -40,10 +34,7 @@ const MyProfile = () => {
   useEffect(() => {
     const fetchWishlist = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:8000/api/v1/users/wishlist",
-          { withCredentials: true }
-        );
+        const res = await api.get("/api/v1/users/wishlist");
         setWishlist(res.data?.data || []);
       } catch (err) {
         console.error("Error fetching wishlist:", err);
@@ -54,14 +45,11 @@ const MyProfile = () => {
     fetchWishlist();
   }, []);
 
-  // ✅ Fetch recipes posted by user
+  // ✅ Fetch recipes posted by user (kept same logic)
   useEffect(() => {
     const fetchMyRecipes = async () => {
       try {
-        const res = await axios.get(
-          "http://localhost:8000/api/v1/recipes/posted-by-user",
-          { withCredentials: true }
-        );
+        const res = await api.get("/api/v1/recipes/posted-by-user");
         setMyRecipes(res.data?.data || []);
       } catch (err) {
         console.error("Error fetching my recipes:", err);
@@ -74,38 +62,6 @@ const MyProfile = () => {
 
   const handleView = (recipe) => {
     navigate(`/disease/${recipe.disease}/${recipe.recipeName}`);
-  };
-
-  // ✅ Toggle Like Handler
-  const handleToggleLike = async (recipeId) => {
-    try {
-      await axios.post(
-        "http://localhost:8000/api/v1/like/toggle-like",
-        { recipeId },
-        { withCredentials: true }
-      );
-
-      setWishlist((prev) =>
-        prev.map((r) =>
-          r._id === recipeId
-            ? {
-                ...r,
-                totalLikes: likedRecipes.includes(recipeId)
-                  ? r.totalLikes - 1
-                  : r.totalLikes + 1,
-              }
-            : r
-        )
-      );
-
-      setLikedRecipes((prev) =>
-        prev.includes(recipeId)
-          ? prev.filter((id) => id !== recipeId)
-          : [...prev, recipeId]
-      );
-    } catch (error) {
-      console.error("Error toggling like:", error);
-    }
   };
 
   if (error)
@@ -124,74 +80,123 @@ const MyProfile = () => {
     ? user.avatar.split("/").pop().replace(/\.(jpg|jpeg|png)$/, "")
     : "default";
 
-  // ✅ Reusable Card Component (UI same as RecipeCards)
-  const RecipeCard = ({ recipe }) => {
-    const isLiked = likedRecipes.includes(recipe._id);
-    return (
-      <div
-        key={recipe._id}
-        className="relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 w-72 pt-16 pb-8 px-4 text-center"
-      >
-        <div className="absolute -top-14 left-1/2 transform -translate-x-1/2">
-          <img
-            src={recipe.recipeImage}
-            alt={recipe.recipeName}
-            className="w-28 h-28 rounded-full object-cover border-4 border-yellow-300 shadow-lg"
-          />
-        </div>
+  // ✅ Wishlist Recipe Card (unchanged)
+  const RecipeCard = ({ recipe }) => (
+    <div
+      key={recipe._id}
+      className="relative bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 w-full max-w-[15rem] sm:max-w-[16rem] md:max-w-[18rem] pt-14 pb-6 px-3 text-center flex flex-col items-center"
+    >
+      <div className="absolute -top-12 left-1/2 transform -translate-x-1/2">
+        <img
+          src={recipe.recipeImage}
+          alt={recipe.recipeName}
+          className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-4 border-yellow-300 shadow-lg"
+        />
+      </div>
 
-        <h3 className="text-lg font-semibold text-gray-800 mt-6 mb-6">
-          {recipe.recipeName}
-        </h3>
+      <h3 className="text-base sm:text-lg font-semibold text-gray-800 mt-6 mb-4">
+        {recipe.recipeName}
+      </h3>
 
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex flex-col items-center text-gray-700">
-            <Clock size={22} className="text-yellow-500 mb-1" />
-            <p className="text-sm">Total Time</p>
-            <p className="font-semibold text-gray-900">
+      <div className="flex flex-col items-center gap-3 w-full">
+        <div className="flex flex-col items-center text-gray-700">
+          <Clock size={20} className="text-yellow-500 mb-1" />
+          <div className="flex gap-2">
+            <p className="text-xs sm:text-sm">Total Time</p>
+            <p className="font-semibold text-gray-900 text-sm">
               {recipe.expectedTime} min
             </p>
           </div>
+        </div>
 
-          <div className="w-10 h-px bg-gray-300"></div>
+        <button
+          onClick={() => handleView(recipe)}
+          className="flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-white font-medium px-3 py-1.5 rounded-lg text-sm shadow-sm transition-all duration-300 w-full sm:w-auto"
+        >
+          <Eye size={16} />
+          View Now
+        </button>
+      </div>
+    </div>
+  );
 
-          <div className="flex items-center justify-center gap-2 text-gray-700">
-            <button
-              onClick={() => handleToggleLike(recipe._id)}
-              className="transition-transform transform hover:scale-110"
-            >
-              <Heart
-                size={22}
-                className={`${
-                  isLiked ? "fill-red-500 text-red-500" : "text-red-500"
-                }`}
-              />
-            </button>
-            <span className="font-medium">{recipe.totalLikes || 0}</span>
-          </div>
-
-          <button
-            onClick={() => handleView(recipe)}
-            className="flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-white font-medium px-4 py-2 rounded-lg shadow-sm transition-all duration-300"
-          >
-            <Eye size={18} />
-            View Now
-          </button>
+  // ✅ New “My Recipes” Card UI (like your SoldItems example)
+  const MyRecipeCard = ({ recipe }) => (
+    <div
+      key={recipe._id}
+      className="flex flex-col sm:flex-row items-start sm:items-center justify-between rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition-all duration-300"
+    >
+      {/* Left section */}
+      <div className="flex items-start sm:items-center gap-4 w-full sm:w-2/3">
+        <img
+          src={recipe.recipeImage}
+          alt={recipe.recipeName}
+          className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-md border"
+        />
+        <div>
+          <h2 className="font-parastoo font-medium text-lg sm:text-xl text-gray-800">
+            {recipe.recipeName}
+          </h2>
+          <p className="font-parastoo text-sm sm:text-base text-gray-600 mt-1">
+            Disease: <span className="capitalize">{recipe.disease}</span>
+          </p>
+          <p className="font-parastoo text-sm sm:text-base mt-1 font-medium text-gray-700 flex items-center gap-1">
+            <Clock size={16} className="text-yellow-500" />{" "}
+            {recipe.expectedTime} min
+          </p>
         </div>
       </div>
-    );
-  };
+
+      {/* Right section */}
+      <div className="mt-4 sm:mt-0 text-sm text-right">
+        <p className="font-gothic text-gray-600">
+          Posted on{" "}
+          {new Date(recipe.createdAt).toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })}
+        </p>
+        <p className="font-parastoo text-base text-gray-600 mt-1">
+          Status:{" "}
+          <span
+            className={`font-semibold ${
+              recipe.status === "approved"
+                ? "text-green-600"
+                : recipe.status === "pending"
+                ? "text-yellow-600"
+                : recipe.status === "rejected"
+                ? "text-red-600"
+                : "text-gray-600"
+            }`}
+          >
+            {recipe.status}
+          </span>
+        </p>
+        {recipe.status === "rejected" && recipe.rejectionReason && (
+          <p className="font-parastoo text-sm text-red-600 mt-1">
+            Reason: {recipe.rejectionReason}
+          </p>
+        )}
+        <button
+          onClick={() => handleView(recipe)}
+          className="mt-3 bg-yellow-400 hover:bg-yellow-500 text-white px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 shadow-sm"
+        >
+          View Recipe
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex flex-col items-center px-4 py-10 pt-28">
-      <div className="w-full max-w-5xl">
+      <div className="w-full max-w-6xl">
         {/* ✅ Profile Header */}
         <div className="flex items-center space-x-4 mb-6">
-          <img
-            src={`/images/${avatarName}.jpg`}
-            alt="Avatar"
-            className="w-10 h-10 rounded-full border border-gray-300 object-cover"
-          />
+          <Avatar
+              src={user.avatar}
+              sx={{ width: { xs: 30, sm: 40 }, height: { xs: 30, sm: 40 } }}
+            />
           <h2 className="font-gothic text-2xl font-semibold">
             {user.fullName}
           </h2>
@@ -213,7 +218,7 @@ const MyProfile = () => {
           </p>
         </div>
 
-        {/* ✅ Wishlist Section */}
+        {/* ✅ Wishlist Section (unchanged) */}
         <section className="mb-16">
           <h2 className="text-2xl font-semibold text-gray-800 mb-8 text-center">
             My Wishlist
@@ -225,7 +230,7 @@ const MyProfile = () => {
               No recipes in your wishlist yet.
             </p>
           ) : (
-            <div className="flex flex-wrap justify-center gap-10">
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 justify-items-center">
               {wishlist.map((recipe) => (
                 <RecipeCard key={recipe._id} recipe={recipe} />
               ))}
@@ -233,21 +238,23 @@ const MyProfile = () => {
           )}
         </section>
 
-        {/* ✅ My Recipes Section */}
+        {/* ✅ My Recipes Section (new UI) */}
         <section className="mt-16 pt-4">
           <h2 className="text-2xl font-semibold text-gray-800 mb-10 text-center">
             Recipes Posted by Me
           </h2>
           {loadingMyRecipes ? (
-            <p className="text-center text-gray-500">Loading your recipes...</p>
+            <div className="text-center text-gray-500">
+              <Loader />
+            </div>
           ) : myRecipes.length === 0 ? (
             <p className="text-center text-gray-500">
               You haven't posted any recipes yet.
             </p>
           ) : (
-            <div className="flex flex-wrap justify-center gap-10 mt-6 pt-6">
+            <div className="space-y-4">
               {myRecipes.map((recipe) => (
-                <RecipeCard key={recipe._id} recipe={recipe} />
+                <MyRecipeCard key={recipe._id} recipe={recipe} />
               ))}
             </div>
           )}
