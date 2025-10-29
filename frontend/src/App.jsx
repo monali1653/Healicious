@@ -17,6 +17,8 @@ import RecipeCards from './components/RecipeCards'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import AdminDashboard from './components/AdminDashboard'
+import MyProfile from './components/MyProfile'
+import SettingsPage from './components/SettingsPage'
 
 
 function App() {
@@ -65,6 +67,8 @@ function App() {
             />
           }
         />
+         <Route path='/myprofile' element={<PrivateRoute element={<MyProfile/>}/>} />
+          <Route path='/settings' element={<PrivateRoute element={<SettingsPage/>}/>} />
       </Routes>
       <Footer/>
     </Router>

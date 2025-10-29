@@ -5,28 +5,17 @@ import axios from "axios";
 const Login = ({ setIsAuthenticated }) => {
   const navigate = useNavigate();
 
-  // Form state
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  // UI state
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  // Handle input changes
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  // Toggle password visibility
-  const handleToggle = () => {
-    setShowPassword(!showPassword);
-  };
+  const handleToggle = () => setShowPassword(!showPassword);
 
   // Handle form submit
   const handleSubmit = async (e) => {
@@ -60,7 +49,6 @@ const Login = ({ setIsAuthenticated }) => {
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
-      {/* Left: Form Section */}
       <div className="w-full md:w-[40%] flex items-center justify-center bg-white p-8 md:p-16">
         <div className="max-w-md w-full space-y-6">
           <h1 className="text-3xl font-semibold text-gray-800">Healicious</h1>
@@ -73,7 +61,6 @@ const Login = ({ setIsAuthenticated }) => {
           </div>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
-            {/* Email */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Email Address
@@ -82,14 +69,13 @@ const Login = ({ setIsAuthenticated }) => {
                 type="email"
                 name="email"
                 value={formData.email}
-                onChange={handleChange}
                 placeholder="johndoe123@xyz.com"
                 required
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
 
-            {/* Password */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Password
@@ -98,14 +84,12 @@ const Login = ({ setIsAuthenticated }) => {
                 type={showPassword ? "text" : "password"}
                 name="password"
                 value={formData.password}
-                onChange={handleChange}
                 placeholder="••••••••"
                 required
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
-
-            {/* Show Password + Forgot Password */}
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center cursor-pointer">
                 <input
@@ -120,7 +104,6 @@ const Login = ({ setIsAuthenticated }) => {
                 Forgot Password?
               </a>
             </div>
-
             {/* Error or Success Messages */}
             {error && <p className="text-red-600 text-sm">{error}</p>}
             {success && <p className="text-green-600 text-sm">Login successful!</p>}
@@ -136,7 +119,9 @@ const Login = ({ setIsAuthenticated }) => {
               {loading ? "Signing In..." : "Sign In"}
             </button>
 
-            {/* Sign Up Link */}
+            {error && <p className="text-red-600 text-sm text-center">{error}</p>}
+            {success && <p className="text-green-600 text-sm text-center">Login Successful!</p>}
+
             <p className="text-sm text-center text-gray-600">
               Don’t have an account?{" "}
               <Link to="/signup" className="text-green-600 font-medium hover:underline">
@@ -147,7 +132,6 @@ const Login = ({ setIsAuthenticated }) => {
         </div>
       </div>
 
-      {/* Right: Image Section */}
       <div className="w-full md:w-[60%] flex items-center justify-center bg-gray-100">
         <img
           src="/images/log.jpg"

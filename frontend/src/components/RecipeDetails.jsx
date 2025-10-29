@@ -6,9 +6,9 @@ import axios from "axios";
 import Loader from "./Loader.jsx";
 
 const RecipeDetails = () => {
-  const [isFavorite, setIsFavorite] = useState(false);
   const { category, dishName } = useParams();
   const [recipe, setRecipe] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
   const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
@@ -40,7 +40,6 @@ const RecipeDetails = () => {
         setLoading(false);
       }
     };
-
     fetchRecipe();
   }, [category, dishName]);
 
@@ -145,7 +144,6 @@ const RecipeDetails = () => {
           <h2 className="text-2xl font-bold text-gray-800">{recipe.recipeName}</h2>
           <p className="text-gray-600">{recipe.description}</p>
           
-          
           {/* === Buttons === */}
           <div className="flex flex-wrap gap-4 mt-2">
             <div className="mt-2 flex gap-2">
@@ -189,31 +187,47 @@ const RecipeDetails = () => {
           </div>
         </div>
       </div>
-      
-      {/* === Cooking Instructions === */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
-          <h3 className="text-xl font-semibold text-gray-800">Cooking Instructions</h3>
-          {recipe.steps.map((step, index) => (
-            <div key={index} className="bg-white p-4 rounded-lg shadow">
-              <strong>Step {index + 1}:</strong> {step}
-            </div>
-          ))}
-        </div>
 
-        {/* === Ingredients === */}
-        <div className="space-y-3">
-          <h3 className="text-xl font-semibold text-gray-800 mb-2">Ingredients</h3>
-          {recipe.ingradients.map((ing, index) => (
-            <div key={index} className="bg-white p-3 rounded-lg shadow text-gray-700">
-              {ing}
-            </div>
-          ))}
-        </div>
+      {/* === ✅ Ingredients Section === */}
+      <div>
+        <h3 className="text-xl font-semibold text-gray-800 mb-3">Ingredients</h3>
+        {recipe.ingradients?.length > 0 ? (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {recipe.ingradients.map((item, index) => (
+              <div
+                key={index}
+                className="bg-white border border-gray-200 shadow-sm rounded-lg p-3 text-gray-700"
+              >
+                {item}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500">No ingredients listed.</p>
+        )}
       </div>
 
-      {/* === Comments Section === */}
-      <div ref={commentsRef} className="space-y-6 p-4 bg-gray-100 shadow-xl rounded-xl">
+      {/* === ✅ Steps Section === */}
+      <div>
+        <h3 className="text-xl font-semibold text-gray-800 mb-3">Steps</h3>
+        {recipe.steps?.length > 0 ? (
+          <div className="space-y-3">
+            {recipe.steps.map((step, index) => (
+              <div
+                key={index}
+                className="bg-white border border-gray-200 shadow-sm rounded-lg p-4 text-gray-700"
+              >
+                <span className="font-semibold text-yellow-600">Step {index + 1}:</span> {step}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500">No steps listed.</p>
+        )}
+      </div>
+
+      {/* === ✅ Comments Section === */}
+      <div ref={commentsRef} className="space-y-6">
         <h3 className="text-xl font-semibold text-gray-800">
           Comments ({comments.length})
         </h3>

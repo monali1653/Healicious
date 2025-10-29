@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FiMenu, FiX } from "react-icons/fi";
-import { Menubar } from "./Menubar";
+import { FaUser } from "react-icons/fa";
+import {Menubar}   from "./Menubar";
 import PropTypes from "prop-types";
 import Cookies from "js-cookie";
-import axios from "axios";
+import axios from "axios"; 
 
 const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -17,8 +18,6 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
     { name: "Home", path: "/" },
     { name: "Add Yours", path: "/recipe" },
   ];
-
-  // ✅ Fetch user info
   useEffect(() => {
     if (!isAuthenticated) return setUser(null);
     axios
@@ -32,11 +31,9 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
   // ✅ Logout handler
   const handleLogout = async () => {
     try {
-      await axios.post(
-        "http://localhost:8000/api/v1/users/logout",
-        {},
-        { withCredentials: true }
-      );
+      await axios.post("http://localhost:8000/api/v1/users/logout",{}, {
+        withCredentials: true
+      });
       Cookies.remove("token");
       setIsAuthenticated(false);
       navigate("/");
@@ -59,7 +56,6 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
     }
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpen]);
-
   return (
     <nav className="w-full bg-white shadow-sm fixed top-0 left-0 z-50">
       {/* --- Main Navbar Row --- */}
@@ -81,7 +77,6 @@ const Navbar = ({ isAuthenticated, setIsAuthenticated }) => {
           />
           <h1 className="text-lg font-semibold text-gray-800">Healicious</h1>
         </div>
-
         {/* --- Right: Nav Links (Desktop) + Avatar --- */}
         <div className="flex items-center space-x-8">
           {/* Desktop Nav Links */}

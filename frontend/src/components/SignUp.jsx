@@ -4,31 +4,29 @@ import axios from "axios";
 
 const Signup = () => {
   const navigate = useNavigate();
-
-  // Form state
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [showAvatarPopup, setShowAvatarPopup] = useState(false);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phoneNo: "",
     password: "",
+    avatar: "", // added avatar field
   });
 
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false); // For success popup
-
-  // Handle input change
+  // Handle form field changes
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   // Toggle password visibility
   const handleToggle = () => {
     setShowPassword(!showPassword);
   };
-
-  // Handle form submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -38,18 +36,19 @@ const Signup = () => {
     try {
       const response = await axios.post(
         "http://localhost:8000/api/v1/users/register",
-        formData
+        formData,
+        { withCredentials: true }
       );
-      console.log(response.data);
+      console.log("✅ Registration successful:", response.data);
       setSuccess(true);
 
-      // Hide success popup after 3 seconds and navigate to login
+      // Redirect to login after success
       setTimeout(() => {
         setSuccess(false);
         navigate("/login");
-      }, 3000);
+      }, 2000);
     } catch (err) {
-      console.error(err);
+      console.error("❌ Registration error:", err);
       setError(err.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
@@ -57,23 +56,19 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row relative">
-      {/* Left: Form Section */}
+    <div className="min-h-screen flex flex-col md:flex-row">
+      {/* Left Section - Form */}
       <div className="w-full md:w-[40%] flex items-center justify-center bg-white p-8 md:p-16">
         <div className="max-w-md w-full space-y-6">
-          {/* Logo */}
           <h1 className="text-3xl font-semibold text-gray-800">Healicious</h1>
 
-          {/* Welcome Text */}
           <div>
             <h2 className="text-2xl font-semibold text-gray-800">Create Account</h2>
             <p className="text-gray-500 text-sm">
               Register to get started with your healthy journey.
             </p>
           </div>
-
-          {/* Form */}
-          <form className="space-y-5" onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Full Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -138,7 +133,7 @@ const Signup = () => {
               />
             </div>
 
-            {/* Show Password */}
+            {/* Show Password Checkbox */}
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center cursor-pointer">
                 <input
@@ -149,17 +144,87 @@ const Signup = () => {
                 Show Password
               </label>
             </div>
+            {/* Avatar Selection */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Avatar (Optional)
+              </label>
 
-            {/* Error Message */}
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+              {/* Avatar Preview & Select Button */}
+              <div className="flex items-center space-x-3">
+                {formData.avatar ? (
+                  <img
+                    src={formData.avatar}
+                    alt="Selected Avatar"
+                    className="w-12 h-12 rounded-full border"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full border flex items-center justify-center text-gray-400">
+                    No Avatar
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowAvatarPopup(true)}
+                  className="text-sm text-green-600 hover:underline"
+                >
+                  Select Avatar
+                </button>
+              </div>
+
+              {/* Avatar Popup */}
+              {showAvatarPopup && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                  <div className="bg-white rounded-lg p-6 shadow-lg w-80 relative">
+                    <button
+                      type="button"
+                      onClick={() => setShowAvatarPopup(false)}
+                      className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                    >
+                      ✕
+                    </button>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                      Choose an Avatar
+                    </h3>
+                    <div className="grid grid-cols-3 gap-3">
+                      {[
+                        "/images/avatar1.jpg",
+                        "/images/avatar2.jpg",
+                        "/images/avatar3.jpg",
+                        "/images/avatar4.jpg",
+                        "/images/avatar5.jpg",
+                        "/images/avatar6.jpg",
+                      ].map((avatar, index) => (
+                        <img
+                          key={index}
+                          src={avatar}
+                          alt={`Avatar ${index + 1}`}
+                          onClick={() => {
+                            setFormData((prev) => ({ ...prev, avatar }));
+                            setShowAvatarPopup(false);
+                          }}
+                          className="w-16 h-16 rounded-full border cursor-pointer hover:ring-2 hover:ring-green-500"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Error / Success Messages */}
+            {error && <p className="text-red-600 text-sm">{error}</p>}
+            {success && <p className="text-green-600 text-sm">Registration successful!</p>}
 
             {/* Register Button */}
             <button
               type="submit"
-              className={`w-full bg-green-600 text-white py-2 rounded-md font-semibold hover:bg-green-700 transition ${
-                loading ? "opacity-50 cursor-not-allowed" : ""
-              }`}
               disabled={loading}
+              className={`w-full py-2 rounded-md font-semibold text-white transition ${
+                loading
+                  ? "bg-green-400 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700"
+              }`}
             >
               {loading ? "Registering..." : "Register"}
             </button>
@@ -175,10 +240,10 @@ const Signup = () => {
         </div>
       </div>
 
-      {/* Right: Image Section */}
+      {/* Right Section - Image */}
       <div className="w-full md:w-[60%] flex items-center justify-center bg-gray-100">
         <img
-          src="/images/log.jpg" // Replace with your image path
+          src="/images/log.jpg"
           alt="Healthy meal"
           className="w-full h-full object-cover"
         />

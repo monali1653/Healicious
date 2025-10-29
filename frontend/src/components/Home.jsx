@@ -11,6 +11,7 @@ import {
   FaLemon,
   FaLeaf,
   FaChevronRight,
+  FaChevronUp,
 } from "react-icons/fa";
 
 const Home = ({ isAuthenticated }) => {
@@ -24,6 +25,8 @@ const Home = ({ isAuthenticated }) => {
     return () => clearTimeout(timer);
   }, []);
 
+  const [showMore, setShowMore] = useState(false);
+
   const diseases = [
     { name: "All Types", icon: <FaAppleAlt />, path: "/disease/all", active: true },
     { name: "Diabetes", icon: <FaHeartbeat />, path: "/disease/diabetes" },
@@ -33,6 +36,33 @@ const Home = ({ isAuthenticated }) => {
     { name: "PCOS", icon: <FaLemon />, path: "/disease/pcos" },
     { name: "Heart Health", icon: <FaHeartbeat />, path: "/disease/heart-health" },
   ];
+
+  const extraDiseases = [
+  { name: "Hypertension", icon: <FaHeartbeat />, path: "/disease/hypertension" },
+  { name: "Cholesterol", icon: <FaLeaf />, path: "/disease/cholesterol" },
+  { name: "Liver Health", icon: <FaAppleAlt />, path: "/disease/liver" },
+  { name: "Kidney Health", icon: <FaTint />, path: "/disease/kidney" },
+  { name: "Digestive Health", icon: <FaUtensils />, path: "/disease/digestive" },
+  { name: "Joint Pain", icon: <FaStar />, path: "/disease/joint-pain" },
+  { name: "Migraine Relief", icon: <FaLemon />, path: "/disease/migraine" },
+  { name: "Lactose Intolerance", icon: <FaAppleAlt />, path: "/disease/lactose" },
+  { name: "Gluten Intolerance", icon: <FaLeaf />, path: "/disease/gluten" },
+  { name: "Arthritis", icon: <FaHeartbeat />, path: "/disease/arthritis" },
+  { name: "Depression & Anxiety", icon: <FaStar />, path: "/disease/depression" },
+  { name: "Asthma", icon: <FaTint />, path: "/disease/asthma" },
+  { name: "Menopause Support", icon: <FaLeaf />, path: "/disease/menopause" },
+  { name: "Pregnancy Nutrition", icon: <FaAppleAlt />, path: "/disease/pregnancy" },
+  { name: "Postpartum Recovery", icon: <FaUtensils />, path: "/disease/postpartum" },
+  { name: "Immunity Boost", icon: <FaLemon />, path: "/disease/immunity" },
+  { name: "Fatty Liver", icon: <FaTint />, path: "/disease/fatty-liver" },
+  { name: "Skin Health", icon: <FaLeaf />, path: "/disease/skin-health" },
+  { name: "Bone Strength", icon: <FaWeight />, path: "/disease/bone-health" },
+  { name: "Eye Health", icon: <FaAppleAlt />, path: "/disease/eye-health" },
+  { name: "Sleep Improvement", icon: <FaStar />, path: "/disease/sleep" },
+  { name: "Allergy-Friendly", icon: <FaLemon />, path: "/disease/allergy" },
+  { name: "Cancer Recovery", icon: <FaHeartbeat />, path: "/disease/cancer" },
+  { name: "Detox & Cleanse", icon: <FaLeaf />, path: "/disease/detox" },
+];
 
   // Smooth scroll handler
   const handleExploreClick = () => {
@@ -151,7 +181,7 @@ const Home = ({ isAuthenticated }) => {
               />
               <h3 className="text-lg font-semibold text-yellow-600 mb-2">Save Money</h3>
               <p className="text-gray-600 text-sm md:text-base max-w-xs mx-auto">
-                Healthy eating doesn’t have to be costly. Our balanced, nutrition-focused meals give you wholesome food at an affordable price, so you can stay consistent without overspending.
+                Healthy eating doesn’t have to be costly. Our balanced, nutrition-focused meals give you wholesome food at an affordable price.
               </p>
             </div>
           </div>
@@ -175,7 +205,7 @@ const Home = ({ isAuthenticated }) => {
               />
               <h3 className="text-lg font-semibold text-yellow-600 mb-2">Food Quality</h3>
               <p className="text-gray-600 text-sm md:text-base max-w-xs mx-auto">
-                Enjoy food that’s both nourishing and satisfying — perfectly cooked, full of flavor, and made just like home. Every meal supports your health without compromising on taste.
+                Enjoy food that’s both nourishing and satisfying — perfectly cooked, full of flavor, and made just like home.
               </p>
             </div>
 
@@ -223,15 +253,39 @@ const Home = ({ isAuthenticated }) => {
           </div>
 
           <div className="flex justify-end mt-8">
-            <button
-              onClick={() => navigate("/disease")}
-              className="flex items-center text-yellow-600 hover:text-yellow-700 font-medium transition duration-200"
-            >
-              See more <FaChevronRight className="ml-1" />
-            </button>
-          </div>
-        </section>
-      )}
+
+          {showMore &&
+            extraDiseases.map((item, index) => (
+              <button
+                key={`extra-${index}`}
+                onClick={() => navigate(item.path)}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full shadow-sm border bg-gray-50 hover:bg-yellow-50 text-gray-700 border-gray-200 transition-all duration-300"
+              >
+                <span className="text-yellow-500 text-lg">{item.icon}</span>
+                <span className="font-medium text-sm md:text-base">{item.name}</span>
+              </button>
+            ))}
+        </div>
+
+        {/* See More / See Less Button */}
+        <div className="flex justify-end mt-8">
+          <button
+            onClick={() => setShowMore(!showMore)}
+            className="flex items-center text-yellow-600 hover:text-yellow-700 font-medium transition duration-200"
+          >
+            {showMore ? (
+              <>
+                See Less <FaChevronUp className="ml-1" />
+              </>
+            ) : (
+              <>
+                See More <FaChevronRight className="ml-1" />
+              </>
+            )}
+          </button>
+        </div>
+      </section>
+  )}
     </div>
   );
 };

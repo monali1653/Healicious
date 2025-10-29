@@ -117,7 +117,6 @@ const fetchRecipeLikes = async (recipeId) => {
         <div className="flex flex-wrap justify-center gap-10 mt-20">
           {recipes.map((recipe) => {
             const isLiked = likedRecipes.includes(recipe._id);
-
             return (
               <div
                 key={recipe._id}
@@ -150,7 +149,6 @@ const fetchRecipeLikes = async (recipeId) => {
                       </p>
                     </div>
                   </div>
-
                   {/* ❤️ Like Button & Count */}
                   <div className="flex items-center justify-center gap-2 text-gray-700">
                     <button
