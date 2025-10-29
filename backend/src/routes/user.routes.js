@@ -27,6 +27,7 @@ router.route("/delete-account").post(verifyJWT,deleteAccount)
 
 router.route("/toggle-wishlist").post(verifyJWT, toggleWishlist)
 router.route("/wishlist").get(verifyJWT, wishlistofUser)
+
 router.route("/myprofile").get(verifyJWT, getMyProfile)
 
 export default router;

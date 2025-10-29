@@ -19,6 +19,7 @@ import Footer from './components/Footer'
 import AdminDashboard from './components/AdminDashboard'
 import MyProfile from './components/MyProfile'
 import SettingsPage from './components/SettingsPage'
+import AskAI from "./components/AskAI";
 
 
 function App() {
@@ -58,6 +59,7 @@ function App() {
         <Route path='/recipe' element={<PrivateRoute element={<RecipeForm/>}/>} />
         <Route path="/disease/:category" element={<PrivateRoute element={<RecipeCards />}/>} />
         <Route path="/disease/:category/:dishName" element={<PrivateRoute element={<RecipeDetails />}/>} />
+        <Route path="/ask-ai" element={<AskAI />} />
         <Route
           path="/admin/dashboard"
           element={

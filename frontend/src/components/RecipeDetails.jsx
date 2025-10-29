@@ -99,6 +99,28 @@ const RecipeDetails = () => {
     fetchComments();
   }, [recipe]);
 
+  // ✅ Check if the recipe is already in wishlist
+useEffect(() => {
+  const checkFavoriteStatus = async () => {
+    if (!recipe?._id) return;
+    try {
+      const res = await axios.get(
+        "http://localhost:8000/api/v1/users/wishlist",
+        { withCredentials: true }
+      );
+
+      const wishlist = res.data.data || [];
+      const isFav = wishlist.some((item) => item._id === recipe._id);
+      setIsFavorite(isFav);
+    } catch (err) {
+      console.error("Error checking wishlist:", err);
+    }
+  };
+
+  checkFavoriteStatus();
+}, [recipe]);
+
+
   const handlePostComment = async () => {
     if (!newComment.trim()) return alert("Please enter a comment!");
     try {

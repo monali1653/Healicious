@@ -100,9 +100,6 @@ const Login = ({ setIsAuthenticated }) => {
                 />
                 Show Password
               </label>
-              <a href="#" className="text-green-600 hover:underline">
-                Forgot Password?
-              </a>
             </div>
             {/* Error or Success Messages */}
             {error && <p className="text-red-600 text-sm">{error}</p>}
@@ -118,9 +115,6 @@ const Login = ({ setIsAuthenticated }) => {
             >
               {loading ? "Signing In..." : "Sign In"}
             </button>
-
-            {error && <p className="text-red-600 text-sm text-center">{error}</p>}
-            {success && <p className="text-green-600 text-sm text-center">Login Successful!</p>}
 
             <p className="text-sm text-center text-gray-600">
               Don’t have an account?{" "}

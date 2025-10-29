@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import Loader from "./Loader"; // ⬅️ your loader file
+import Loader from "./Loader";
+import { MessageSquare } from "lucide-react";
 import {
   FaStar,
   FaUtensils,
@@ -11,7 +12,7 @@ import {
   FaLemon,
   FaLeaf,
   FaChevronRight,
-  FaChevronUp,
+  FaChevronLeft,
 } from "react-icons/fa";
 
 const Home = ({ isAuthenticated }) => {
@@ -24,11 +25,15 @@ const Home = ({ isAuthenticated }) => {
     const timer = setTimeout(() => setLoading(false), 2000);
     return () => clearTimeout(timer);
   }, []);
+  const scrollRef = useRef(null);
 
-  const [showMore, setShowMore] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  
+  const handleAskAI = () => {
+    navigate(`/ask-ai?query=${encodeURIComponent(searchTerm)}`);
+  };
 
   const diseases = [
-    { name: "All Types", icon: <FaAppleAlt />, path: "/disease/all", active: true },
     { name: "Diabetes", icon: <FaHeartbeat />, path: "/disease/diabetes" },
     { name: "Anaemia", icon: <FaTint />, path: "/disease/anaemia" },
     { name: "Thyroid", icon: <FaLeaf />, path: "/disease/thyroid" },
@@ -38,33 +43,50 @@ const Home = ({ isAuthenticated }) => {
   ];
 
   const extraDiseases = [
-  { name: "Hypertension", icon: <FaHeartbeat />, path: "/disease/hypertension" },
-  { name: "Cholesterol", icon: <FaLeaf />, path: "/disease/cholesterol" },
-  { name: "Liver Health", icon: <FaAppleAlt />, path: "/disease/liver" },
-  { name: "Kidney Health", icon: <FaTint />, path: "/disease/kidney" },
-  { name: "Digestive Health", icon: <FaUtensils />, path: "/disease/digestive" },
-  { name: "Joint Pain", icon: <FaStar />, path: "/disease/joint-pain" },
-  { name: "Migraine Relief", icon: <FaLemon />, path: "/disease/migraine" },
-  { name: "Lactose Intolerance", icon: <FaAppleAlt />, path: "/disease/lactose" },
-  { name: "Gluten Intolerance", icon: <FaLeaf />, path: "/disease/gluten" },
-  { name: "Arthritis", icon: <FaHeartbeat />, path: "/disease/arthritis" },
-  { name: "Depression & Anxiety", icon: <FaStar />, path: "/disease/depression" },
-  { name: "Asthma", icon: <FaTint />, path: "/disease/asthma" },
-  { name: "Menopause Support", icon: <FaLeaf />, path: "/disease/menopause" },
-  { name: "Pregnancy Nutrition", icon: <FaAppleAlt />, path: "/disease/pregnancy" },
-  { name: "Postpartum Recovery", icon: <FaUtensils />, path: "/disease/postpartum" },
-  { name: "Immunity Boost", icon: <FaLemon />, path: "/disease/immunity" },
-  { name: "Fatty Liver", icon: <FaTint />, path: "/disease/fatty-liver" },
-  { name: "Skin Health", icon: <FaLeaf />, path: "/disease/skin-health" },
-  { name: "Bone Strength", icon: <FaWeight />, path: "/disease/bone-health" },
-  { name: "Eye Health", icon: <FaAppleAlt />, path: "/disease/eye-health" },
-  { name: "Sleep Improvement", icon: <FaStar />, path: "/disease/sleep" },
-  { name: "Allergy-Friendly", icon: <FaLemon />, path: "/disease/allergy" },
-  { name: "Cancer Recovery", icon: <FaHeartbeat />, path: "/disease/cancer" },
-  { name: "Detox & Cleanse", icon: <FaLeaf />, path: "/disease/detox" },
-];
+    { name: "Hypertension", icon: <FaHeartbeat />, path: "/disease/hypertension" },
+    { name: "Cholesterol", icon: <FaLeaf />, path: "/disease/cholesterol" },
+    { name: "Liver Health", icon: <FaAppleAlt />, path: "/disease/liver" },
+    { name: "Kidney Health", icon: <FaTint />, path: "/disease/kidney" },
+    { name: "Digestive Health", icon: <FaUtensils />, path: "/disease/digestive" },
+    { name: "Joint Pain", icon: <FaStar />, path: "/disease/joint-pain" },
+    { name: "Migraine Relief", icon: <FaLemon />, path: "/disease/migraine" },
+    { name: "Lactose Intolerance", icon: <FaAppleAlt />, path: "/disease/lactose" },
+    { name: "Gluten Intolerance", icon: <FaLeaf />, path: "/disease/gluten" },
+    { name: "Arthritis", icon: <FaHeartbeat />, path: "/disease/arthritis" },
+    { name: "Depression & Anxiety", icon: <FaStar />, path: "/disease/depression" },
+    { name: "Asthma", icon: <FaTint />, path: "/disease/asthma" },
+    { name: "Menopause Support", icon: <FaLeaf />, path: "/disease/menopause" },
+    { name: "Pregnancy Nutrition", icon: <FaAppleAlt />, path: "/disease/pregnancy" },
+    { name: "Postpartum Recovery", icon: <FaUtensils />, path: "/disease/postpartum" },
+    { name: "Immunity Boost", icon: <FaLemon />, path: "/disease/immunity" },
+    { name: "Fatty Liver", icon: <FaTint />, path: "/disease/fatty-liver" },
+    { name: "Skin Health", icon: <FaLeaf />, path: "/disease/skin-health" },
+    { name: "Bone Strength", icon: <FaWeight />, path: "/disease/bone-health" },
+    { name: "Eye Health", icon: <FaAppleAlt />, path: "/disease/eye-health" },
+    { name: "Sleep Improvement", icon: <FaStar />, path: "/disease/sleep" },
+    { name: "Allergy-Friendly", icon: <FaLemon />, path: "/disease/allergy" },
+    { name: "Cancer Recovery", icon: <FaHeartbeat />, path: "/disease/cancer" },
+    { name: "Detox & Cleanse", icon: <FaLeaf />, path: "/disease/detox" },
+  ];
 
-  // Smooth scroll handler
+  const allDiseases = [...diseases, ...extraDiseases];
+
+  // Scroll handler
+  const handleScroll = (direction) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -300 : 300,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  // Filter diseases based on search
+  const filteredDiseases = allDiseases.filter((item) =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Scroll to wellbeing section
   const handleExploreClick = () => {
     diseaseSectionRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -113,7 +135,6 @@ const Home = ({ isAuthenticated }) => {
               </button>
             </div>
           )}
-
           {/* Stats Section */}
           <div className="flex flex-col sm:flex-row gap-6 mt-10 justify-center md:justify-start">
             <div className="flex flex-col items-center bg-gray-50 rounded-xl p-4 shadow-sm w-32">
@@ -224,65 +245,86 @@ const Home = ({ isAuthenticated }) => {
         </div>
       </section>
 
+
       {/* ================= DISEASE SECTION ================= */}
       {isAuthenticated && (
-        <section
-          ref={diseaseSectionRef} // ⬅️ attach ref for smooth scroll
-          className="bg-white py-16 px-6 md:px-20 border-t border-gray-100"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-10">
-            Find your <span className="text-yellow-500">disease specific</span> meals
-          </h2>
+      <section ref={diseaseSectionRef} className="bg-white py-16 px-6 md:px-20 border-t border-gray-100 mt-16 relative">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-8">
+          Find your <span className="text-yellow-500">disease specific</span> meals
+        </h2>
 
-          <div className="flex flex-wrap justify-center gap-4 md:gap-6">
-            {diseases.map((item, index) => (
+        {/* Search Box + Ask AI */}
+        <div className="flex justify-center mb-10">
+          <div className="w-full md:w-2/3 lg:w-1/2 flex gap-3">
+            <input
+              type="text"
+              placeholder="Search for a disease..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            />
+            <button
+              onClick={handleAskAI}
+              disabled={!searchTerm.trim()}
+              className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 disabled:opacity-60 text-white font-medium px-5 py-2 rounded-full shadow-md transition-all duration-300"
+              title="Ask AI for help"
+            >
+              <MessageSquare size={18} />
+              <span className="hidden sm:inline">Ask AI</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Scroll Buttons */}
+        <button
+          onClick={() => handleScroll("left")}
+          className="absolute left-8 top-1/2 transform -translate-y-1/2 bg-yellow-400/90 hover:bg-yellow-500 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-10"
+        >
+          <FaChevronLeft />
+        </button>
+
+        <button
+          onClick={() => handleScroll("right")}
+          className="absolute right-8 top-1/2 transform -translate-y-1/2 bg-yellow-400/90 hover:bg-yellow-500 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-10"
+        >
+          <FaChevronRight />
+        </button>
+
+        {/* Disease Slider */}
+        <div
+          ref={scrollRef}
+          className="flex overflow-x-auto scrollbar-hide gap-4 md:gap-6 pb-4 px-1 scroll-smooth"
+        >
+          {filteredDiseases.length > 0 ? (
+            filteredDiseases.map((item, index) => (
               <button
                 key={index}
                 onClick={() => navigate(item.path)}
-                className={`flex items-center gap-2 px-5 py-2.5 rounded-full shadow-sm border transition-all duration-300
-                  ${
-                    item.active
-                      ? "bg-black text-white border-black"
-                      : "bg-gray-50 hover:bg-yellow-50 text-gray-700 border-gray-200"
-                  }`}
+                className={`flex-shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-full shadow-sm border transition-all duration-300 ${
+                  item.active
+                    ? "bg-black text-white border-black"
+                    : "bg-gray-50 hover:bg-yellow-50 text-gray-700 border-gray-200"
+                }`}
               >
                 <span className="text-yellow-500 text-lg">{item.icon}</span>
-                <span className="font-medium text-sm md:text-base">{item.name}</span>
+                <span className="font-medium text-sm md:text-base whitespace-nowrap">
+                  {item.name}
+                </span>
               </button>
-            ))}
-          </div>
-
-          <div className="flex justify-end mt-8">
-
-          {showMore &&
-            extraDiseases.map((item, index) => (
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-3 w-full">
+              <p className="text-gray-500 text-center">No diseases found 😢</p>
               <button
-                key={`extra-${index}`}
-                onClick={() => navigate(item.path)}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full shadow-sm border bg-gray-50 hover:bg-yellow-50 text-gray-700 border-gray-200 transition-all duration-300"
+                onClick={handleAskAI}
+                disabled={!searchTerm.trim()}
+                className="flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 disabled:opacity-60 text-white font-medium px-5 py-2 rounded-full shadow-md transition-all duration-300"
               >
-                <span className="text-yellow-500 text-lg">{item.icon}</span>
-                <span className="font-medium text-sm md:text-base">{item.name}</span>
+                <MessageSquare size={18} />
+                Ask AI about "{searchTerm || "this"}"
               </button>
-            ))}
-        </div>
-
-        {/* See More / See Less Button */}
-        <div className="flex justify-end mt-8">
-          <button
-            onClick={() => setShowMore(!showMore)}
-            className="flex items-center text-yellow-600 hover:text-yellow-700 font-medium transition duration-200"
-          >
-            {showMore ? (
-              <>
-                See Less <FaChevronUp className="ml-1" />
-              </>
-            ) : (
-              <>
-                See More <FaChevronRight className="ml-1" />
-              </>
-            )}
-          </button>
+            </div>
+          )}
         </div>
       </section>
   )}
